@@ -5,14 +5,13 @@ import { AppDispatch, type RootState } from "@/lib/store";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getLastEarnings,
-  getPrices,
   getRecentEarnings,
   getReporters,
 } from "@/lib/home/homeSlice";
 import { useEffect } from "react";
 import { shortenName, secondsToHMS } from "@/utils/string";
-import { Button, Table } from "antd";
-import type { TableColumnsType, TableProps } from "antd";
+import { Table } from "antd";
+import type { TableColumnsType } from "antd";
 import {
   CheckCircleTwoTone,
   CloseCircleTwoTone,

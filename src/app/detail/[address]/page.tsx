@@ -2,7 +2,7 @@
 
 import { AppDispatch, type RootState } from "@/lib/store";
 import { useSelector, useDispatch } from "react-redux";
-import { getPrices, getTransactions } from "@/lib/home/homeSlice";
+import { getTransactions } from "@/lib/home/homeSlice";
 import { useEffect, useState } from "react";
 import { Checkbox, Table } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
