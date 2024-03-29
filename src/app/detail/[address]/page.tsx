@@ -9,6 +9,7 @@ import type { TableColumnsType, TableProps } from "antd";
 import moment from "moment";
 import Config from "@/config/settings";
 import { shortenName } from "@/utils/string";
+import Link from "next/link";
 
 interface DataType {
   key: React.Key;
@@ -38,7 +39,7 @@ export default function Home({ params }: { params: { address: string } }) {
 
   useEffect(() => {
     dispatch(getPrices());
-    dispatch(getTransactions());
+    dispatch(getTransactions(params.address));
     setInterval(() => {
       dispatch(getPrices());
     }, 12000);
@@ -53,15 +54,15 @@ export default function Home({ params }: { params: { address: string } }) {
       title: "TxId",
       dataIndex: "hash",
       render: (hash, _v) => (
-        <a
-          target="blank"
+        <Link
+          target="_blank"
           href={`https://etherscan.io/tx/${hash}`}
           className={`${
             Number(_v.receipt_status) === 0 ? "text-[red]" : "text-white"
           }`}
         >
           {shortenName(hash, 12)}
-        </a>
+        </Link>
       ),
     },
     {
@@ -119,9 +120,9 @@ export default function Home({ params }: { params: { address: string } }) {
         <div className="w-full flex items-center flex-col">
           <a
             target="blank"
-            href={`https://etherscan.io/address/${Config.MY_ADDRESS}`}
+            href={`https://etherscan.io/address/${params.address}`}
           >
-            {Config.MY_ADDRESS}
+            {params.address}
           </a>
           Fee: {(totalFee / 1e18).toFixed(8)} (
           {((totalFee / 1e18) * ethPrice).toFixed(2)}) Reward:{" "}

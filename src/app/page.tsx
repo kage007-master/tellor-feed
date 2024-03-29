@@ -20,6 +20,7 @@ import {
 } from "@ant-design/icons";
 import { getDuration } from "@/utils/math";
 import Config from "@/config/settings";
+import Link from "next/link";
 
 interface DataType {
   key: React.Key;
@@ -73,15 +74,29 @@ export default function Home() {
       title: "Address",
       dataIndex: "id",
       render: (address) => (
-        <a
-          className={`${
-            address === Config.MY_ADDRESS ? "text-[red]" : "text-white"
-          }`}
-          target="blank"
-          href={`https://etherscan.io/address/${address}`}
-        >
-          {shortenName(address, 12)}
-        </a>
+        <div className="flex gap-2">
+          <Link
+            target="_blank"
+            className={`${
+              address === Config.MY_ADDRESS ? "text-[red]" : "text-white"
+            }`}
+            href={`/detail/${address}`}
+          >
+            {shortenName(address, 12)}
+          </Link>
+          <Link
+            target="_blank"
+            href={`https://etherscan.io/address/${address}`}
+          >
+            <Image src={"/etherscan.png"} width={20} height={20} alt="debank" />
+          </Link>
+          <Link
+            target="_blank"
+            href={`https://debank.com/profile/${address}/history?chain=eth`}
+          >
+            <Image src={"/debank.png"} width={20} height={20} alt="debank" />
+          </Link>
+        </div>
       ),
     },
     {

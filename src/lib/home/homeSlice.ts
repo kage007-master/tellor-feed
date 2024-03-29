@@ -158,67 +158,76 @@ export const getLastEarnings = createAsyncThunk(`getLastEarnings`, async () => {
   }
 });
 
-export const getTransactions = createAsyncThunk(`getTransactions`, async () => {
-  try {
-    if (!status.started) {
-      status.started = true;
-      await Moralis.start({ apiKey: Config.MORALIS_APIKEY });
-    }
-    let txs: any[] = [],
-      transfers: any[] = [];
+export const getTransactions = createAsyncThunk(
+  `getTransactions`,
+  async (address: string) => {
+    try {
+      if (!status.started) {
+        status.started = true;
+        await Moralis.start({ apiKey: Config.MORALIS_APIKEY });
+      }
+      let txs: any[] = [],
+        transfers: any[] = [];
 
-    let blockNumber = await getBlockNumber();
-    while (1) {
-      const response = await Moralis.EvmApi.transaction.getWalletTransactions({
-        chain: "0x1",
-        limit: 100,
-        order: "DESC",
-        toBlock: blockNumber,
-        address: Config.MY_ADDRESS,
-      });
-      txs = [...txs, ...response.raw.result];
-      if (response.raw.result.length === 0) break;
-      blockNumber =
-        Number(
-          response.raw.result[response.raw.result.length - 1].block_number
-        ) - 1;
-    }
-
-    blockNumber = await getBlockNumber();
-    while (1) {
-      const response = await Moralis.EvmApi.token.getWalletTokenTransfers({
-        chain: "0x1",
-        limit: 100,
-        order: "DESC",
-        toBlock: blockNumber,
-        address: Config.MY_ADDRESS,
-      });
-      transfers = [...transfers, ...response.raw.result];
-      if (response.raw.result.length === 0) break;
-      blockNumber =
-        Number(
-          response.raw.result[response.raw.result.length - 1].block_number
-        ) - 1;
-    }
-
-    const withTokenTransfer = txs.map((tx) => {
-      const transfer = transfers.find((txID) => {
-        return (
-          tx.hash === txID.transaction_hash &&
-          txID.from_address === Config.CONTRACT_ADDRESS
+      let blockNumber = await getBlockNumber();
+      while (1) {
+        const response = await Moralis.EvmApi.transaction.getWalletTransactions(
+          {
+            chain: "0x1",
+            limit: 100,
+            order: "DESC",
+            toBlock: blockNumber,
+            address: address,
+          }
         );
+        txs = [...txs, ...response.raw.result];
+        if (response.raw.result.length === 0) break;
+        blockNumber =
+          Number(
+            response.raw.result[response.raw.result.length - 1].block_number
+          ) - 1;
+      }
+
+      blockNumber = await getBlockNumber();
+      while (1) {
+        const response = await Moralis.EvmApi.token.getWalletTokenTransfers({
+          chain: "0x1",
+          limit: 100,
+          order: "DESC",
+          toBlock: blockNumber,
+          address: address,
+        });
+        transfers = [...transfers, ...response.raw.result];
+        if (response.raw.result.length === 0) break;
+        blockNumber =
+          Number(
+            response.raw.result[response.raw.result.length - 1].block_number
+          ) - 1;
+      }
+
+      const withTokenTransfer = txs.map((tx) => {
+        const transfer = transfers.find((txID) => {
+          return (
+            tx.hash === txID.transaction_hash &&
+            txID.from_address === Config.CONTRACT_ADDRESS
+          );
+        });
+        return {
+          ...tx,
+          trb: transfer
+            ? Number(transfer.value_decimal) > 10
+              ? 0
+              : Number(transfer.value_decimal)
+            : 0,
+          key: tx.hash,
+        };
       });
-      return {
-        ...tx,
-        trb: transfer ? Number(transfer.value_decimal) : 0,
-        key: tx.hash,
-      };
-    });
-    return withTokenTransfer;
-  } catch (e) {
-    console.error(e);
+      return withTokenTransfer;
+    } catch (e) {
+      console.error(e);
+    }
   }
-});
+);
 
 export const counterSlice = createSlice({
   name: "counter",
