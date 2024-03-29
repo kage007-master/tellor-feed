@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { Checkbox, Table } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import moment from "moment";
-import Config from "@/config/settings";
 import { shortenName } from "@/utils/string";
 import Link from "next/link";
 
@@ -25,24 +24,13 @@ interface DataType {
 }
 
 export default function Home({ params }: { params: { address: string } }) {
-  const {
-    gasPrice,
-    ethPrice,
-    tellorPrice,
-    avaliableEarning,
-    totalFee,
-    transactions,
-    trbBalance,
-  } = useSelector((state: RootState) => state.home);
+  const { ethPrice, tellorPrice, totalFee, transactions, trbBalance } =
+    useSelector((state: RootState) => state.home);
   const dispatch = useDispatch<AppDispatch>();
   const [hideFailed, setHideFailed] = useState(false);
 
   useEffect(() => {
-    dispatch(getPrices());
     dispatch(getTransactions(params.address));
-    setInterval(() => {
-      dispatch(getPrices());
-    }, 12000);
   }, []);
 
   const columns: TableColumnsType<DataType> = [
@@ -102,52 +90,36 @@ export default function Home({ params }: { params: { address: string } }) {
     },
   ];
   return (
-    <main className="flex min-h-screen flex-col justify-between">
-      <nav className="!z-50 flex gap-2 px-5 py-2 fixed bg-[#aaa] w-full">
-        <div>Gas: {(gasPrice / 1e9).toFixed(0)} Gwei</div>
-        <div>ETH: {ethPrice}</div>
-        <div>TRB: {tellorPrice}</div>
-        <div>Current Rewards: {avaliableEarning}</div>
-        <div>
-          Estimated Earning:{" "}
-          {(
-            avaliableEarning * tellorPrice -
-            ((gasPrice * 272954) / 1e18) * ethPrice
-          ).toFixed(2)}
-        </div>
-      </nav>
-      <div className="mx-20 h-full mt-14">
-        <div className="w-full flex items-center flex-col">
-          <a
-            target="blank"
-            href={`https://etherscan.io/address/${params.address}`}
-          >
-            {params.address}
-          </a>
-          Fee: {(totalFee / 1e18).toFixed(8)} (
-          {((totalFee / 1e18) * ethPrice).toFixed(2)}) Reward:{" "}
-          {trbBalance.toFixed(2)} ({(trbBalance * tellorPrice).toFixed(2)})
-          Earning:{" "}
-          {(trbBalance * tellorPrice - (totalFee / 1e18) * ethPrice).toFixed(2)}
-        </div>
-        <Checkbox
-          checked={hideFailed}
-          onChange={() => setHideFailed(!hideFailed)}
+    <div className="mx-20 h-full mt-14">
+      <div className="w-full flex items-center flex-col">
+        <a
+          target="blank"
+          href={`https://etherscan.io/address/${params.address}`}
         >
-          Hide Failed
-        </Checkbox>
-        <Table
-          className="mt-5 !z-0 border rounded-md bg-black"
-          columns={columns}
-          dataSource={
-            hideFailed
-              ? transactions.filter((tx) => Number(tx.receipt_status) === 1)
-              : transactions
-          }
-          pagination={false}
-        />
+          {params.address}
+        </a>
+        Fee: {(totalFee / 1e18).toFixed(8)} (
+        {((totalFee / 1e18) * ethPrice).toFixed(2)}) Reward:{" "}
+        {trbBalance.toFixed(2)} ({(trbBalance * tellorPrice).toFixed(2)})
+        Earning:{" "}
+        {(trbBalance * tellorPrice - (totalFee / 1e18) * ethPrice).toFixed(2)}
       </div>
-      <footer></footer>
-    </main>
+      <Checkbox
+        checked={hideFailed}
+        onChange={() => setHideFailed(!hideFailed)}
+      >
+        Hide Failed
+      </Checkbox>
+      <Table
+        className="mt-5 !z-0 border rounded-md bg-black"
+        columns={columns}
+        dataSource={
+          hideFailed
+            ? transactions.filter((tx) => Number(tx.receipt_status) === 1)
+            : transactions
+        }
+        pagination={false}
+      />
+    </div>
   );
 }

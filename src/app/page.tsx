@@ -33,27 +33,16 @@ interface DataType {
 }
 
 export default function Home() {
-  const {
-    gasPrice,
-    ethPrice,
-    tellorPrice,
-    avaliableEarning,
-    reporters,
-    currentTimeStamp,
-    lastTimeStamp,
-  } = useSelector((state: RootState) => state.home);
+  const { ethPrice, tellorPrice, reporters, currentTimeStamp, lastTimeStamp } =
+    useSelector((state: RootState) => state.home);
   const recentEarnings = useSelector(
     (state: RootState) => state.home.recentEarnings
   );
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    dispatch(getPrices());
     dispatch(getRecentEarnings());
     dispatch(getReporters());
-    setInterval(() => {
-      dispatch(getPrices());
-    }, 12000);
   }, []);
 
   useEffect(() => {
@@ -171,50 +160,34 @@ export default function Home() {
     // },
   ];
   return (
-    <main className="flex min-h-screen flex-col justify-between">
-      <nav className="!z-50 flex gap-2 px-5 py-2 fixed bg-[#aaa] w-full">
-        <div>Gas: {(gasPrice / 1e9).toFixed(0)} Gwei</div>
-        <div>ETH: {ethPrice}</div>
-        <div>TRB: {tellorPrice}</div>
-        <div>Current Rewards: {avaliableEarning}</div>
-        <div>
-          Estimated Earning:{" "}
-          {(
-            avaliableEarning * tellorPrice -
-            ((gasPrice * 272954) / 1e18) * ethPrice
-          ).toFixed(2)}
-        </div>
-      </nav>
-      <div className="w-full h-full mt-12">
-        <div className="flex gap-2 justify-center">
-          {recentEarnings.map((earning: any) => (
-            <div
-              key={earning.transaction_hash}
-              className="p-1.5 bg-[#172135] rounded-md border border-[#323546]"
-            >
-              <p>
-                {shortenName(earning.to_address)} :{" "}
-                {Number(earning.value_decimal).toFixed(2)}
-              </p>
-              <p className="text-center">
-                $
-                {(
-                  Number(earning.value_decimal) * tellorPrice -
-                  earning.fee * ethPrice
-                ).toFixed(2)}
-              </p>
-            </div>
-          ))}
-        </div>
-        <Table
-          className="mx-20 my-3 !z-0"
-          columns={columns}
-          dataSource={reporters}
-          pagination={false}
-          size="small"
-        />
+    <div className="w-full h-full mt-12">
+      <div className="flex gap-2 justify-center">
+        {recentEarnings.map((earning: any) => (
+          <div
+            key={earning.transaction_hash}
+            className="p-1.5 bg-[#172135] rounded-md border border-[#323546]"
+          >
+            <p>
+              {shortenName(earning.to_address)} :{" "}
+              {Number(earning.value_decimal).toFixed(2)}
+            </p>
+            <p className="text-center">
+              $
+              {(
+                Number(earning.value_decimal) * tellorPrice -
+                earning.fee * ethPrice
+              ).toFixed(2)}
+            </p>
+          </div>
+        ))}
       </div>
-      <footer></footer>
-    </main>
+      <Table
+        className="mx-20 my-3 !z-0"
+        columns={columns}
+        dataSource={reporters}
+        pagination={false}
+        size="small"
+      />
+    </div>
   );
 }
