@@ -1,113 +1,205 @@
+"use client";
+
 import Image from "next/image";
+import { AppDispatch, type RootState } from "@/lib/store";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  getLastEarnings,
+  getPrices,
+  getRecentEarnings,
+  getReporters,
+} from "@/lib/home/homeSlice";
+import { useEffect } from "react";
+import { shortenName, secondsToHMS } from "@/utils/string";
+import { Button, Table } from "antd";
+import type { TableColumnsType, TableProps } from "antd";
+import {
+  CheckCircleTwoTone,
+  CloseCircleTwoTone,
+  WarningTwoTone,
+} from "@ant-design/icons";
+import { getDuration } from "@/utils/math";
+import Config from "@/config/settings";
+
+interface DataType {
+  key: React.Key;
+  id: string;
+  name: string;
+  _amount: number;
+  _lockedBalance: number;
+  address: string;
+  lastTimestamp: number;
+}
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+  const {
+    gasPrice,
+    ethPrice,
+    tellorPrice,
+    avaliableEarning,
+    reporters,
+    currentTimeStamp,
+    lastTimeStamp,
+  } = useSelector((state: RootState) => state.home);
+  const recentEarnings = useSelector(
+    (state: RootState) => state.home.recentEarnings
+  );
+  const dispatch = useDispatch<AppDispatch>();
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+  useEffect(() => {
+    dispatch(getPrices());
+    dispatch(getRecentEarnings());
+    dispatch(getReporters());
+    setInterval(() => {
+      dispatch(getPrices());
+    }, 12000);
+  }, []);
+
+  useEffect(() => {
+    if (lastTimeStamp) {
+      setTimeout(() => {
+        dispatch(getLastEarnings());
+        dispatch(getReporters());
+      }, 6000);
+    }
+  }, [lastTimeStamp]);
+
+  const columns: TableColumnsType<DataType> = [
+    {
+      title: "No",
+      render: (_v, _d, _index) => _index + 1,
+    },
+    {
+      title: "Address",
+      dataIndex: "id",
+      render: (address) => (
+        <a
+          className={`${
+            address === Config.MY_ADDRESS ? "text-[red]" : "text-white"
+          }`}
+          target="blank"
+          href={`https://etherscan.io/address/${address}`}
+        >
+          {shortenName(address, 12)}
+        </a>
+      ),
+    },
+    {
+      title: "Amount",
+      dataIndex: "_amount",
+      sorter: (a, b) => a._amount - b._amount,
+      render: (_amount) => (_amount / 1e18).toFixed(0),
+    },
+    {
+      title: "Locked Amount",
+      dataIndex: "_lockedBalance",
+      sorter: (a, b) => a._lockedBalance - b._lockedBalance,
+      render: (_lockedBalance) => (_lockedBalance / 1e18).toFixed(0),
+    },
+    {
+      title: "Duration",
+      dataIndex: "_amount",
+      sorter: (a, b) => a._amount - b._amount,
+      render: (_amount) => {
+        let seconds = Math.floor((12 * 3600) / Math.floor(_amount / 1e20));
+        return <>{secondsToHMS(seconds)}</>;
+      },
+    },
+    {
+      title: "Remained Time",
+      dataIndex: "lastTimestamp",
+      render: (lastTimeStamp, data) => {
+        let seconds =
+          currentTimeStamp - lastTimeStamp - getDuration(data._amount);
+        let minus = seconds > 0 ? 1 : 0;
+        seconds = Math.abs(seconds);
+        return (
+          <div
+            className={`${
+              data.id === Config.MY_ADDRESS ? "text-[red]" : "text-white"
+            } flex gap-2`}
+          >
+            {minus ? "-" : ""}
+            {secondsToHMS(seconds)}
+            {minus ? (
+              <CheckCircleTwoTone twoToneColor="#0f0" />
+            ) : (
+              <CloseCircleTwoTone twoToneColor="#f00" />
+            )}
+            {(minus && seconds < getDuration(data._amount)) ||
+            (!minus && seconds < 600) ? (
+              <WarningTwoTone twoToneColor="#FFC048" />
+            ) : (
+              <></>
+            )}
+          </div>
+        );
+      },
+      defaultSortOrder: "descend",
+      sorter: (a, b) => {
+        return (
+          -a.lastTimestamp -
+          getDuration(a._amount) -
+          (-b.lastTimestamp - getDuration(b._amount))
+        );
+      },
+    },
+    // {
+    //   title: "Actions",
+    //   render: () => {
+    //     return (
+    //       <>
+    //         <Button icon={<ProfileTwoTone />}></Button>
+    //       </>
+    //     );
+    //   },
+    // },
+  ];
+  return (
+    <main className="flex min-h-screen flex-col justify-between">
+      <nav className="!z-50 flex gap-2 px-5 py-2 fixed bg-[#aaa] w-full">
+        <div>Gas: {(gasPrice / 1e9).toFixed(0)} Gwei</div>
+        <div>ETH: {ethPrice}</div>
+        <div>TRB: {tellorPrice}</div>
+        <div>Current Rewards: {avaliableEarning}</div>
+        <div>
+          Estimated Earning:{" "}
+          {(
+            avaliableEarning * tellorPrice -
+            ((gasPrice * 272954) / 1e18) * ethPrice
+          ).toFixed(2)}
+        </div>
+      </nav>
+      <div className="w-full h-full mt-12">
+        <div className="flex gap-2 justify-center">
+          {recentEarnings.map((earning: any) => (
+            <div
+              key={earning.transaction_hash}
+              className="p-1.5 bg-[#172135] rounded-md border border-[#323546]"
+            >
+              <p>
+                {shortenName(earning.to_address)} :{" "}
+                {Number(earning.value_decimal).toFixed(2)}
+              </p>
+              <p className="text-center">
+                $
+                {(
+                  Number(earning.value_decimal) * tellorPrice -
+                  earning.fee * ethPrice
+                ).toFixed(2)}
+              </p>
+            </div>
+          ))}
+        </div>
+        <Table
+          className="mx-20 my-3 !z-0"
+          columns={columns}
+          dataSource={reporters}
+          pagination={false}
+          size="small"
         />
       </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      <footer></footer>
     </main>
   );
 }
