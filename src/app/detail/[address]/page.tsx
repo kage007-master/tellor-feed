@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getTransactions } from "@/lib/home/homeSlice";
 import { useEffect, useState } from "react";
 import { Checkbox, Table } from "antd";
-import type { TableColumnsType, TableProps } from "antd";
+import type { TableColumnsType } from "antd";
 import moment from "moment";
 import { shortenName } from "@/utils/string";
 import Link from "next/link";
