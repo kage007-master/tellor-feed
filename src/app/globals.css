@@ -24,3 +24,7 @@ td.ant-table-column-sort {
 .ant-table-row:hover > .ant-table-cell {
   background: #222531 !important;
 }
+
+button span {
+  color: black !important;
+}

@@ -3,20 +3,18 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Moralis from "moralis";
-import { getGasUsage } from "@/utils/moralis";
 import Config from "@/config/settings";
+import { getGasUsage } from "@/utils/moralis";
 import { getTokenPrice } from "@/utils/api";
 import {
   getGasPrice,
   getCurrentTimeStamp,
   getLastestSubmissionTimestamp,
-  getBlockNumber,
 } from "@/utils/etherjs";
 
 const status = { started: false };
 
 export interface CounterState {
-  value: number;
   recentEarnings: any[];
   gasPrice: number;
   tellorPrice: number;
@@ -25,13 +23,9 @@ export interface CounterState {
   reporters: any[];
   currentTimeStamp: number;
   lastTimeStamp: number;
-  transactions: any[];
-  totalFee: number;
-  trbBalance: number;
 }
 
 const initialState: CounterState = {
-  value: 0,
   recentEarnings: [],
   gasPrice: 0,
   tellorPrice: 105,
@@ -40,9 +34,6 @@ const initialState: CounterState = {
   reporters: [],
   currentTimeStamp: 0,
   lastTimeStamp: 0,
-  transactions: [],
-  totalFee: 0,
-  trbBalance: 0,
 };
 
 export const getPrices = createAsyncThunk(`getPrices`, async () => {
@@ -158,105 +149,16 @@ export const getLastEarnings = createAsyncThunk(`getLastEarnings`, async () => {
   }
 });
 
-export const getTransactions = createAsyncThunk(
-  `getTransactions`,
-  async (address: string) => {
-    try {
-      if (!status.started) {
-        status.started = true;
-        await Moralis.start({ apiKey: Config.MORALIS_APIKEY });
-      }
-      let txs: any[] = [],
-        transfers: any[] = [];
-
-      let blockNumber = await getBlockNumber();
-      while (1) {
-        const response = await Moralis.EvmApi.transaction.getWalletTransactions(
-          {
-            chain: "0x1",
-            limit: 100,
-            order: "DESC",
-            toBlock: blockNumber,
-            address: address,
-          }
-        );
-        txs = [...txs, ...response.raw.result];
-        if (response.raw.result.length === 0) break;
-        blockNumber =
-          Number(
-            response.raw.result[response.raw.result.length - 1].block_number
-          ) - 1;
-      }
-
-      blockNumber = await getBlockNumber();
-      while (1) {
-        const response = await Moralis.EvmApi.token.getWalletTokenTransfers({
-          chain: "0x1",
-          limit: 100,
-          order: "DESC",
-          toBlock: blockNumber,
-          address: address,
-        });
-        transfers = [...transfers, ...response.raw.result];
-        if (response.raw.result.length === 0) break;
-        blockNumber =
-          Number(
-            response.raw.result[response.raw.result.length - 1].block_number
-          ) - 1;
-      }
-
-      const withTokenTransfer = txs.map((tx) => {
-        const transfer = transfers.find((txID) => {
-          return (
-            tx.hash === txID.transaction_hash &&
-            txID.from_address === Config.CONTRACT_ADDRESS
-          );
-        });
-        return {
-          ...tx,
-          trb: transfer
-            ? Number(transfer.value_decimal) > 10
-              ? 0
-              : Number(transfer.value_decimal)
-            : 0,
-          key: tx.hash,
-        };
-      });
-      return withTokenTransfer;
-    } catch (e) {
-      console.error(e);
-    }
-  }
-);
-
 export const counterSlice = createSlice({
   name: "counter",
   initialState,
-  reducers: {
-    increment: (state) => {
-      state.value += 1;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder.addCase(getRecentEarnings.pending, (state) => {});
     builder.addCase(getRecentEarnings.fulfilled, (state, { payload }) => {
       if (payload) state.recentEarnings = payload;
     });
     builder.addCase(getRecentEarnings.rejected, (state) => {});
-    builder.addCase(getTransactions.pending, (state) => {});
-    builder.addCase(getTransactions.fulfilled, (state, { payload }) => {
-      if (payload) {
-        state.transactions = payload;
-        state.totalFee = 94521080000000000;
-        state.trbBalance = 0;
-        for (var i = 0; i < payload.length; i++) {
-          state.totalFee +=
-            Number(payload[i].receipt_gas_used) * Number(payload[i].gas_price);
-          state.trbBalance += payload[i].trb;
-        }
-      }
-    });
-    builder.addCase(getTransactions.rejected, (state) => {});
     builder.addCase(getLastEarnings.pending, (state) => {});
     builder.addCase(getLastEarnings.fulfilled, (state, { payload }) => {
       if (
@@ -290,5 +192,4 @@ export const counterSlice = createSlice({
   },
 });
 
-export const { increment } = counterSlice.actions;
 export default counterSlice.reducer;

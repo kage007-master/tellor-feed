@@ -1,36 +1,52 @@
 "use client";
 
-import { AppDispatch, type RootState } from "@/lib/store";
-import { useSelector, useDispatch } from "react-redux";
-import { getTransactions } from "@/lib/home/homeSlice";
+import { type RootState } from "@/lib/store";
+import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { Checkbox, Table } from "antd";
+import { Checkbox, Table, Input, Button } from "antd";
 import type { TableColumnsType } from "antd";
 import moment from "moment";
 import { shortenName } from "@/utils/string";
 import Link from "next/link";
+import { SyncOutlined } from "@ant-design/icons";
+import getData, { updateTxs } from "@/lib/action";
+import { getBlockNumber } from "@/utils/etherjs";
+import Config from "@/config/settings";
 
 interface DataType {
   key: React.Key;
   name: string;
-  _amount: number;
-  _lockedBalance: number;
   gas_price: number;
   receipt_gas_used: number;
   address: string;
-  lastTimestamp: number;
   trb: number;
   receipt_status: number;
 }
 
 export default function Home({ params }: { params: { address: string } }) {
-  const { ethPrice, tellorPrice, totalFee, transactions, trbBalance } =
-    useSelector((state: RootState) => state.home);
-  const dispatch = useDispatch<AppDispatch>();
+  const { ethPrice, tellorPrice } = useSelector(
+    (state: RootState) => state.home
+  );
   const [hideFailed, setHideFailed] = useState(false);
+  const [txs, setTxs] = useState<any>([]);
+  const [loading, setLoading] = useState(false);
+
+  const calcFee = (txs: any[]) => {
+    let totalFee = params.address === Config.MY_ADDRESS ? 94521080000000000 : 0;
+    let trbBalance = 0;
+    for (var i = 0; i < txs.length; i++) {
+      totalFee += Number(txs[i].receipt_gas_used) * Number(txs[i].gas_price);
+      trbBalance += txs[i].trb;
+    }
+    return { totalFee, trbBalance };
+  };
+
+  const { totalFee, trbBalance } = calcFee(txs);
 
   useEffect(() => {
-    dispatch(getTransactions(params.address));
+    (async () => {
+      setTxs(await getData(params.address));
+    })();
   }, []);
 
   const columns: TableColumnsType<DataType> = [
@@ -109,19 +125,41 @@ export default function Home({ params }: { params: { address: string } }) {
         Earning:{" "}
         {(trbBalance * tellorPrice - (totalFee / 1e18) * ethPrice).toFixed(2)}
       </div>
-      <Checkbox
-        checked={hideFailed}
-        onChange={() => setHideFailed(!hideFailed)}
-      >
-        Hide Failed
-      </Checkbox>
+      <div className="div flex gap-4 items-center">
+        <Checkbox
+          checked={hideFailed}
+          onChange={() => setHideFailed(!hideFailed)}
+        >
+          Hide Failed
+        </Checkbox>
+        <div className="flex gap-2 items-center">
+          From: <Input style={{ width: "20%" }} size="small" />
+          To: <Input style={{ width: "20%" }} size="small" />
+          <Button size="small">Search</Button>
+        </div>
+        <Button
+          className="ml-auto"
+          type="primary"
+          size="small"
+          shape="circle"
+          disabled={loading}
+          icon={<SyncOutlined />}
+          onClick={async () => {
+            setLoading(true);
+            await updateTxs(params.address, await getBlockNumber());
+            setTxs(await getData(params.address));
+            setLoading(false);
+          }}
+        />
+      </div>
       <Table
         className="mt-5 !z-0 border rounded-md bg-black"
         columns={columns}
+        loading={loading}
         dataSource={
           hideFailed
-            ? transactions.filter((tx) => Number(tx.receipt_status) === 1)
-            : transactions
+            ? txs.filter((tx: any) => Number(tx.receipt_status) === 1)
+            : txs
         }
         pagination={false}
       />
