@@ -54,6 +54,10 @@ export default function Home({ params }: { params: { address: string } }) {
       ),
     },
     {
+      title: "Block",
+      dataIndex: "block_number",
+    },
+    {
       title: "Fee",
       dataIndex: "receipt_gas_used",
       sorter: (a, b) =>
@@ -72,12 +76,13 @@ export default function Home({ params }: { params: { address: string } }) {
     {
       title: "Reward",
       dataIndex: "trb",
-      render: (trb) => trb + "(" + (trb * tellorPrice).toFixed(2) + ")",
+      render: (trb) =>
+        trb.toFixed(2) + "(" + (trb * tellorPrice).toFixed(2) + ")",
     },
     {
       title: "Time",
       dataIndex: "block_timestamp",
-      render: (time) => moment(time).fromNow(true),
+      render: (time) => moment(time).format("HH:mm MM/DD"),
     },
     {
       title: "Income",
