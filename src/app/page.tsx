@@ -10,11 +10,12 @@ import {
 } from "@/lib/home/homeSlice";
 import { useEffect } from "react";
 import { shortenName, secondsToHMS } from "@/utils/string";
-import { Table } from "antd";
+import { Button, Table } from "antd";
 import type { TableColumnsType } from "antd";
 import {
   CheckCircleTwoTone,
   CloseCircleTwoTone,
+  SyncOutlined,
   WarningTwoTone,
 } from "@ant-design/icons";
 import { getDuration } from "@/utils/math";
@@ -179,6 +180,13 @@ export default function Home() {
             </p>
           </div>
         ))}
+        <Button
+          type="primary"
+          size="small"
+          shape="circle"
+          icon={<SyncOutlined />}
+          onClick={() => dispatch(getRecentEarnings())}
+        />
       </div>
       <Table
         className="mx-20 my-3 !z-0"
