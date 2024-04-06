@@ -8,10 +8,11 @@ import type { TableColumnsType } from "antd";
 import moment from "moment";
 import { shortenName } from "@/utils/string";
 import Link from "next/link";
-import { SyncOutlined } from "@ant-design/icons";
+import { LineChartOutlined, SyncOutlined } from "@ant-design/icons";
 import getData, { updateTxs } from "@/lib/action";
 import { getBlockNumber } from "@/utils/etherjs";
 import Config from "@/config/settings";
+import ReactECharts from "echarts-for-react";
 
 interface DataType {
   key: React.Key;
@@ -28,6 +29,7 @@ export default function Home({ params }: { params: { address: string } }) {
     (state: RootState) => state.home
   );
   const [hideFailed, setHideFailed] = useState(false);
+  const [viewChart, setViewChart] = useState(false);
   const [txs, setTxs] = useState<any>([]);
   const [loading, setLoading] = useState(false);
 
@@ -39,6 +41,66 @@ export default function Home({ params }: { params: { address: string } }) {
       trbBalance += txs[i].trb;
     }
     return { totalFee, trbBalance };
+  };
+
+  const calcStatistic = (txs: any[]) => {
+    let total: any = {},
+      success: any = {},
+      fail: any = {};
+    for (let i = 0; i < txs.length; i++) {
+      const date = moment(txs[i].block_timestamp).format("MM/DD");
+      const income =
+        txs[i].trb * tellorPrice -
+        ((txs[i].receipt_gas_used * txs[i].gas_price) / 1e18) * ethPrice;
+      if (!total[date])
+        (total[date] = income), (success[date] = fail[date] = 0);
+      else total[date] += income;
+      if (Number(txs[i].receipt_status) === 1) success[date] += income;
+      else fail[date] += income;
+    }
+    return {
+      tooltip: {
+        trigger: "axis",
+      },
+      legend: {
+        data: ["Total", "Success", "Fail"],
+      },
+      grid: {
+        left: "3%",
+        right: "4%",
+        bottom: "3%",
+        containLabel: true,
+      },
+      color: ["#5470c6", "#91cc75", "#ee6666"],
+      xAxis: {
+        type: "category",
+        boundaryGap: false,
+        data: Object.keys(total).reverse(),
+      },
+      yAxis: {
+        type: "value",
+      },
+      series: [
+        {
+          name: "Total",
+          type: "line",
+          stack: "Total",
+          data: Object.values(total).reverse(),
+        },
+        {
+          name: "Success",
+          type: "line",
+          stack: "Success",
+          data: Object.values(success).reverse(),
+        },
+        {
+          name: "Fail",
+          type: "line",
+          stack: "Fail",
+          data: Object.values(fail).reverse(),
+        },
+      ],
+    };
   };
 
   const { totalFee, trbBalance } = calcFee(txs);
@@ -137,6 +199,9 @@ export default function Home({ params }: { params: { address: string } }) {
           To: <Input style={{ width: "20%" }} size="small" />
           <Button size="small">Search</Button>
         </div>
+        <Checkbox checked={viewChart} onChange={() => setViewChart(!viewChart)}>
+          View Chart
+        </Checkbox>
         <Button
           className="ml-auto"
           type="primary"
@@ -152,6 +217,7 @@ export default function Home({ params }: { params: { address: string } }) {
           }}
         />
       </div>
+      {viewChart && <ReactECharts option={calcStatistic(txs)} />}
       <Table
         className="mt-5 !z-0 border rounded-md bg-black"
         columns={columns}
