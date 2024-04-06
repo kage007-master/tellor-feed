@@ -46,16 +46,18 @@ export default function Home({ params }: { params: { address: string } }) {
   const calcStatistic = (txs: any[]) => {
     let total: any = {},
       success: any = {},
-      fail: any = {};
+      fail: any = {},
+      claim: any = {};
     for (let i = 0; i < txs.length; i++) {
       const date = moment(txs[i].block_timestamp).format("MM/DD");
       const income =
         txs[i].trb * tellorPrice -
         ((txs[i].receipt_gas_used * txs[i].gas_price) / 1e18) * ethPrice;
       if (!total[date])
-        (total[date] = income), (success[date] = fail[date] = 0);
+        (total[date] = income), (success[date] = fail[date] = claim[date] = 0);
       else total[date] += income;
-      if (Number(txs[i].receipt_status) === 1) success[date] += income;
+      if (Number(txs[i].receipt_status) === 1)
+        (success[date] += income), claim[date]++;
       else fail[date] += income;
     }
     return {
@@ -63,7 +65,7 @@ export default function Home({ params }: { params: { address: string } }) {
         trigger: "axis",
       },
       legend: {
-        data: ["Total", "Success", "Fail"],
+        data: ["Total", "Success", "Fail", "Claim"],
       },
       grid: {
         left: "3%",
@@ -71,7 +73,7 @@ export default function Home({ params }: { params: { address: string } }) {
         bottom: "3%",
         containLabel: true,
       },
-      color: ["#5470c6", "#91cc75", "#ee6666"],
+      color: ["#5470c6", "#91cc75", "#ee6666", "#9a60b4"],
       xAxis: {
         type: "category",
         boundaryGap: false,
@@ -98,6 +100,12 @@ export default function Home({ params }: { params: { address: string } }) {
           type: "line",
           stack: "Fail",
           data: Object.values(fail).reverse(),
+        },
+        {
+          name: "Claim",
+          type: "line",
+          stack: "Claim",
+          data: Object.values(claim).reverse(),
         },
       ],
     };
