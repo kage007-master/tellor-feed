@@ -118,59 +118,31 @@ export const getRecentEarnings = createAsyncThunk(
   }
 );
 
-export const getLastEarnings = createAsyncThunk(`getLastEarnings`, async () => {
-  try {
-    if (!status.started) {
-      status.started = true;
-      await Moralis.start({ apiKey: Config.MORALIS_APIKEY });
-    }
-
-    const response = await Moralis.EvmApi.token.getWalletTokenTransfers({
-      chain: "0x1",
-      limit: 1,
-      order: "DESC",
-      address: Config.CONTRACT_ADDRESS,
-    });
-
-    const filtered = response.raw.result.filter((tx) => {
-      return tx.to_address.toLocaleLowerCase() !== Config.CONTRACT_ADDRESS;
-    });
-
-    const withGasUage = [];
-    for (let i = 0; i < filtered.length; i++)
-      withGasUage.push({
-        ...filtered[i],
-        fee: await getGasUsage(filtered[i].transaction_hash),
-      });
-
-    return withGasUage;
-  } catch (e) {
-    console.error(e);
-  }
-});
-
 export const counterSlice = createSlice({
   name: "counter",
   initialState,
-  reducers: {},
+  reducers: {
+    getLastEarnings: (state, { payload }) => {
+      state.recentEarnings = [
+        {
+          transaction_hash: payload.res.transactionHash,
+          to_address: payload.res.to,
+          value_decimal: payload.earning,
+          fee:
+            (Number(payload.res.gasUsed) *
+              Number(payload.res.effectiveGasPrice)) /
+            1e18,
+        },
+        ...state.recentEarnings,
+      ].splice(0, 10);
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(getRecentEarnings.pending, (state) => {});
     builder.addCase(getRecentEarnings.fulfilled, (state, { payload }) => {
       if (payload) state.recentEarnings = payload;
     });
     builder.addCase(getRecentEarnings.rejected, (state) => {});
-    builder.addCase(getLastEarnings.pending, (state) => {});
-    builder.addCase(getLastEarnings.fulfilled, (state, { payload }) => {
-      if (
-        payload &&
-        payload[0].to_address !== state.recentEarnings[0].to_address
-      )
-        state.recentEarnings = [...payload, ...state.recentEarnings].splice(
-          0,
-          10
-        );
-    });
-    builder.addCase(getLastEarnings.rejected, (state) => {});
     builder.addCase(getPrices.pending, (state) => {});
     builder.addCase(getPrices.fulfilled, (state, { payload }) => {
       if (payload) {
@@ -193,3 +165,5 @@ export const counterSlice = createSlice({
 });
 
 export default counterSlice.reducer;
+
+export const { getLastEarnings } = counterSlice.actions;

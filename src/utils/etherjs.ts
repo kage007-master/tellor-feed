@@ -4,7 +4,7 @@ import TellorFlexABI from "@/abis/TellorFlex.json";
 
 const provider = new ethers.providers.JsonRpcProvider(Config.RPC_URL);
 
-const TellorFlex = new ethers.Contract(
+export const TellorFlex = new ethers.Contract(
   Config.CONTRACT_ADDRESS,
   TellorFlexABI,
   provider
@@ -28,7 +28,6 @@ export const getAvailableEarning = async () => {
   return (current - last) / 600;
 };
 
-
-export const getBlockNumber = async () =>{
+export const getBlockNumber = async () => {
   return await provider.getBlockNumber();
-}
+};

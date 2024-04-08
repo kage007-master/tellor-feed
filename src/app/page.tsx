@@ -21,6 +21,7 @@ import {
 import { getDuration } from "@/utils/math";
 import Config from "@/config/settings";
 import Link from "next/link";
+import { TellorFlex } from "@/utils/etherjs";
 
 interface DataType {
   key: React.Key;
@@ -32,25 +33,44 @@ interface DataType {
   lastTimestamp: number;
 }
 
+let prevTimeStamp = 0;
 export default function Home() {
-  const { ethPrice, tellorPrice, reporters, currentTimeStamp, lastTimeStamp } =
+  const { ethPrice, tellorPrice, currentTimeStamp, reporters, lastTimeStamp } =
     useSelector((state: RootState) => state.home);
   const recentEarnings = useSelector(
     (state: RootState) => state.home.recentEarnings
   );
   const dispatch = useDispatch<AppDispatch>();
-
   useEffect(() => {
     dispatch(getRecentEarnings());
     dispatch(getReporters());
+    console.log("useEffect test");
   }, []);
 
   useEffect(() => {
     if (lastTimeStamp) {
-      setTimeout(() => {
-        dispatch(getLastEarnings());
-        dispatch(getReporters());
-      }, 6000);
+      if (!prevTimeStamp) {
+        prevTimeStamp = lastTimeStamp;
+        TellorFlex.on(
+          "NewReport",
+          async (
+            _queryId,
+            _time,
+            _value,
+            _nonce,
+            _queryData,
+            _reporter,
+            ...rest: any
+          ) => {
+            const { getTransactionReceipt } = rest[0];
+            const earning = (_time - prevTimeStamp) / 600;
+            prevTimeStamp = _time;
+            const res = await getTransactionReceipt();
+            dispatch(getLastEarnings({ res, earning }));
+            dispatch(getReporters());
+          }
+        );
+      }
     }
   }, [lastTimeStamp]);
 
