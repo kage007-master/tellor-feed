@@ -44,7 +44,6 @@ export default function Home() {
   useEffect(() => {
     dispatch(getRecentEarnings());
     dispatch(getReporters());
-    console.log("useEffect test");
   }, []);
 
   useEffect(() => {
