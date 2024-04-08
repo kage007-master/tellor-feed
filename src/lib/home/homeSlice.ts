@@ -126,7 +126,7 @@ export const counterSlice = createSlice({
       state.recentEarnings = [
         {
           transaction_hash: payload.res.transactionHash,
-          to_address: payload.res.to,
+          to_address: payload.res.to.toLocaleLowerCase(),
           value_decimal: payload.earning,
           fee:
             (Number(payload.res.gasUsed) *
