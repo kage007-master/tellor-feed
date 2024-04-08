@@ -126,7 +126,7 @@ export const counterSlice = createSlice({
       state.recentEarnings = [
         {
           transaction_hash: payload.res.transactionHash,
-          to_address: payload.res.to.toLocaleLowerCase(),
+          to_address: payload._reporter.toLocaleLowerCase(),
           value_decimal: payload.earning,
           fee:
             (Number(payload.res.gasUsed) *
@@ -134,7 +134,7 @@ export const counterSlice = createSlice({
             1e18,
         },
         ...state.recentEarnings,
-      ].splice(0, 10);
+      ];
     },
   },
   extraReducers: (builder) => {

@@ -65,7 +65,7 @@ export default function Home() {
             const earning = (_time - prevTimeStamp) / 600;
             prevTimeStamp = _time;
             const res = await getTransactionReceipt();
-            dispatch(getLastEarnings({ res, earning }));
+            dispatch(getLastEarnings({ res, earning, _reporter }));
             dispatch(getReporters());
           }
         );
@@ -181,24 +181,26 @@ export default function Home() {
   return (
     <div className="w-full h-full mt-12">
       <div className="flex gap-2 justify-center">
-        {recentEarnings.map((earning: any) => (
-          <div
-            key={earning.transaction_hash}
-            className="p-1.5 bg-[#172135] rounded-md border border-[#323546]"
-          >
-            <p>
-              {shortenName(earning.to_address)} :{" "}
-              {Number(earning.value_decimal).toFixed(2)}
-            </p>
-            <p className="text-center">
-              $
-              {(
-                Number(earning.value_decimal) * tellorPrice -
-                earning.fee * ethPrice
-              ).toFixed(2)}
-            </p>
-          </div>
-        ))}
+        <div className="flex gap-2 max-w-[80%] overflow-auto">
+          {recentEarnings.map((earning: any) => (
+            <div
+              key={earning.transaction_hash}
+              className="p-1.5 bg-[#172135] rounded-md border border-[#323546] min-w-[118px] text-center mb-1"
+            >
+              <p>
+                {shortenName(earning.to_address)} :{" "}
+                {Number(earning.value_decimal).toFixed(2)}
+              </p>
+              <p>
+                $
+                {(
+                  Number(earning.value_decimal) * tellorPrice -
+                  earning.fee * ethPrice
+                ).toFixed(2)}
+              </p>
+            </div>
+          ))}
+        </div>
         <Button
           type="primary"
           size="small"
