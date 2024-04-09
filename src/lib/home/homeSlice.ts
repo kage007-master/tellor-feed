@@ -11,6 +11,7 @@ import {
   getCurrentTimeStamp,
   getLastestSubmissionTimestamp,
 } from "@/utils/etherjs";
+import { id } from "ethers/lib/utils";
 
 const status = { started: false };
 
@@ -136,9 +137,11 @@ export const counterSlice = createSlice({
         ...state.recentEarnings,
       ];
       const idx = state.reporters.findIndex(
-        (reporter) => reporter.to_address === payload._reporter
+        (reporter: any) =>
+          reporter.id.toLocaleLowerCase() ===
+          payload._reporter.toLocaleLowerCase()
       );
-      state.reporters[idx].lastTimestamp = payload._time;
+      if (idx != -1) state.reporters[idx].lastTimestamp = Number(payload._time);
     },
   },
   extraReducers: (builder) => {
@@ -162,7 +165,10 @@ export const counterSlice = createSlice({
     builder.addCase(getPrices.rejected, (state) => {});
     builder.addCase(getReporters.pending, (state) => {});
     builder.addCase(getReporters.fulfilled, (state, { payload }) => {
-      if (payload) state.reporters = payload.data.newStakers;
+      if (payload)
+        state.reporters = payload.data.newStakers.map((staker: any) => {
+          return { ...staker, key: staker.id };
+        });
     });
     builder.addCase(getReporters.rejected, (state) => {});
   },

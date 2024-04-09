@@ -65,7 +65,9 @@ export default function Home() {
             const earning = (_time - prevTimeStamp) / 600;
             prevTimeStamp = _time;
             const res = await getTransactionReceipt();
-            dispatch(getLastEarnings({ res, earning, _reporter, _time }));
+            dispatch(
+              getLastEarnings({ res, earning, _reporter, _time, reporters })
+            );
           }
         );
       }
