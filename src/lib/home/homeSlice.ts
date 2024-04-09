@@ -138,7 +138,7 @@ export const counterSlice = createSlice({
       const idx = state.reporters.findIndex(
         (reporter) => reporter.to_address === payload._reporter
       );
-      state.reporters[idx].lastTimeStamp = payload._time;
+      state.reporters[idx].lastTimestamp = payload._time;
     },
   },
   extraReducers: (builder) => {
