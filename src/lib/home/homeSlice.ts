@@ -135,6 +135,10 @@ export const counterSlice = createSlice({
         },
         ...state.recentEarnings,
       ];
+      const idx = state.reporters.findIndex(
+        (reporter) => reporter.to_address === payload._reporter
+      );
+      state.reporters[idx].lastTimeStamp = payload._time;
     },
   },
   extraReducers: (builder) => {
