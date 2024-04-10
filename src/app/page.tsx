@@ -22,7 +22,9 @@ import { getDuration } from "@/utils/math";
 import Config from "@/config/settings";
 import Link from "next/link";
 import { TellorFlex } from "@/utils/etherjs";
-import { notWorkingList } from "@/utils/const";
+import { names, notWorkingList } from "@/utils/const";
+
+const StakerNames: any = names;
 
 interface DataType {
   key: React.Key;
@@ -32,6 +34,7 @@ interface DataType {
   _lockedBalance: number;
   address: string;
   lastTimestamp: number;
+  isContract: boolean;
 }
 
 let prevTimeStamp = 0;
@@ -84,16 +87,24 @@ export default function Home() {
     {
       title: "Address",
       dataIndex: "id",
-      render: (address) => (
+      render: (address, _v) => (
         <div className="flex gap-2">
           <Link
             target="_blank"
             className={`${
-              address === Config.MY_ADDRESS ? "text-[red]" : "text-white"
+              address === Config.MY_ADDRESS
+                ? "text-[red]"
+                : StakerNames[address]
+                ? "text-[#2d8cf3]"
+                : _v.isContract
+                ? "text-[blue]"
+                : "text-white"
             }`}
             href={`/detail/${address}`}
           >
-            {shortenName(address, 12)}
+            {StakerNames[address]
+              ? StakerNames[address]
+              : shortenName(address, 12)}
           </Link>
           <Link
             target="_blank"

@@ -10,6 +10,7 @@ import {
   getGasPrice,
   getCurrentTimeStamp,
   getLastestSubmissionTimestamp,
+  getCode,
 } from "@/utils/etherjs";
 import { id } from "ethers/lib/utils";
 
@@ -66,7 +67,15 @@ export const getReporters = createAsyncThunk(`getReporters`, async () => {
       }
     }`,
     });
-    return data;
+    let reporters = [];
+    for (let i = 0; i < data.data.newStakers.length; i++) {
+      reporters.push({
+        ...data.data.newStakers[i],
+        key: data.data.newStakers[i].id,
+        // isContract: (await getCode(data.data.newStakers[i].id)) === "0x",
+      });
+    }
+    return reporters;
   } catch (e) {
     console.error(e);
   }
@@ -165,10 +174,7 @@ export const counterSlice = createSlice({
     builder.addCase(getPrices.rejected, (state) => {});
     builder.addCase(getReporters.pending, (state) => {});
     builder.addCase(getReporters.fulfilled, (state, { payload }) => {
-      if (payload)
-        state.reporters = payload.data.newStakers.map((staker: any) => {
-          return { ...staker, key: staker.id };
-        });
+      if (payload) state.reporters = payload;
     });
     builder.addCase(getReporters.rejected, (state) => {});
   },

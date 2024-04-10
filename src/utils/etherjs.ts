@@ -31,3 +31,7 @@ export const getAvailableEarning = async () => {
 export const getBlockNumber = async () => {
   return await provider.getBlockNumber();
 };
+
+export const getCode = async (address: string) => {
+  return await provider.getCode(address);
+};
