@@ -4,6 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/store";
 import { useEffect } from "react";
 import { getPrices } from "@/lib/home/homeSlice";
+import Config from "@/config/settings";
+import Link from "next/link";
+import Image from "next/image";
+import { shortenName } from "@/utils/string";
 
 export default function Navbar() {
   const { gasPrice, ethPrice, tellorPrice, avaliableEarning } = useSelector(
@@ -32,6 +36,21 @@ export default function Navbar() {
           avaliableEarning * tellorPrice -
           ((gasPrice * 272954) / 1e18) * ethPrice
         ).toFixed(2)}
+      </div>
+      <div className="ml-auto flex gap-2 items-center">
+        Tellor Oracle Contract: {shortenName(Config.CONTRACT_ADDRESS, 12)}
+        <Link
+          target="_blank"
+          href={`https://etherscan.io/address/${Config.CONTRACT_ADDRESS}/#tokentxns`}
+        >
+          <Image src={"/etherscan.png"} width={20} height={20} alt="debank" />
+        </Link>
+        <Link
+          target="_blank"
+          href={`https://debank.com/profile/${Config.CONTRACT_ADDRESS}/history?chain=eth`}
+        >
+          <Image src={"/debank.png"} width={20} height={20} alt="debank" />
+        </Link>
       </div>
     </nav>
   );

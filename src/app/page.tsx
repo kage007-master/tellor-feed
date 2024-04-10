@@ -8,9 +8,9 @@ import {
   getRecentEarnings,
   getReporters,
 } from "@/lib/home/homeSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { shortenName, secondsToHMS } from "@/utils/string";
-import { Button, Table } from "antd";
+import { Button, Checkbox, Table } from "antd";
 import type { TableColumnsType } from "antd";
 import {
   CheckCircleTwoTone,
@@ -22,6 +22,7 @@ import { getDuration } from "@/utils/math";
 import Config from "@/config/settings";
 import Link from "next/link";
 import { TellorFlex } from "@/utils/etherjs";
+import { notWorkingList } from "@/utils/const";
 
 interface DataType {
   key: React.Key;
@@ -37,6 +38,7 @@ let prevTimeStamp = 0;
 export default function Home() {
   const { ethPrice, tellorPrice, currentTimeStamp, reporters, lastTimeStamp } =
     useSelector((state: RootState) => state.home);
+  const [hideNotWorking, setHideNotWorking] = useState(false);
   const recentEarnings = useSelector(
     (state: RootState) => state.home.recentEarnings
   );
@@ -180,7 +182,7 @@ export default function Home() {
     // },
   ];
   return (
-    <div className="w-full h-full mt-12">
+    <div className="mx-20 h-full mt-12">
       <div className="flex gap-2 justify-center">
         <div className="flex gap-2 max-w-[80%] overflow-auto">
           {recentEarnings.map((earning: any) => (
@@ -210,10 +212,25 @@ export default function Home() {
           onClick={() => dispatch(getRecentEarnings())}
         />
       </div>
+      <Checkbox
+        checked={hideNotWorking}
+        onChange={() => setHideNotWorking(!hideNotWorking)}
+      >
+        Hide Not Working
+      </Checkbox>
       <Table
-        className="mx-20 my-3 !z-0"
+        className="my-3 !z-0"
         columns={columns}
-        dataSource={reporters}
+        dataSource={
+          hideNotWorking
+            ? reporters.filter(
+                (reporter) =>
+                  notWorkingList.findIndex(
+                    (address) => address === reporter.id.toLocaleLowerCase()
+                  ) == -1
+              )
+            : reporters
+        }
         pagination={false}
         size="small"
       />
