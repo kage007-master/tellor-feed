@@ -145,9 +145,9 @@ export default function Home() {
     {
       title: "Remained Time",
       dataIndex: "lastTimestamp",
-      render: (lastTimeStamp, data) => {
+      render: (lastTimestamp, data) => {
         let seconds =
-          currentTimeStamp - lastTimeStamp - getDuration(data._amount);
+          currentTimeStamp - lastTimestamp - getDuration(data._amount);
         let minus = seconds > 0 ? 1 : 0;
         seconds = Math.abs(seconds);
         return (
@@ -238,7 +238,10 @@ export default function Home() {
                 (reporter) =>
                   notWorkingList.findIndex(
                     (address) => address === reporter.id.toLocaleLowerCase()
-                  ) == -1
+                  ) == -1 &&
+                  (reporter.id.toLocaleLowerCase() !==
+                    "0xa8d96836517ae9d3a46b3f99190ed984f74adfd3" ||
+                    currentTimeStamp - reporter.lastTimestamp > 3600 * 12)
               )
             : reporters
         }

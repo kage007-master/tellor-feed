@@ -38,7 +38,7 @@ export const updateTxs = async (address: string, block_number: number) => {
   const client = await clientPromise;
   const db = client.db("tellor-feed");
   const lastUpdate = await db.collection("update-info").findOne({ address });
-  let fromBlock = 0;
+  let fromBlock = 18371578;
   if (lastUpdate) fromBlock = lastUpdate.blockNumber;
 
   let txs: any[] = [],
@@ -101,7 +101,7 @@ export const updateTxs = async (address: string, block_number: number) => {
         : 0,
     });
     if (i === 0) {
-      if (fromBlock === 0)
+      if (fromBlock === 18371578)
         await db
           .collection("update-info")
           .insertOne({ address, blockNumber: Number(txs[i].block_number) + 1 });
