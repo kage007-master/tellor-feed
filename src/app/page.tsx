@@ -241,7 +241,7 @@ export default function Home() {
                   ) == -1 &&
                   (reporter.id.toLocaleLowerCase() !==
                     "0xa8d96836517ae9d3a46b3f99190ed984f74adfd3" ||
-                    currentTimeStamp - reporter.lastTimestamp > 3600 * 12)
+                    currentTimeStamp - reporter.lastTimestamp > 3600 * 23)
               )
             : reporters
         }
