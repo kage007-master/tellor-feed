@@ -12,7 +12,6 @@ export default async (address: string) => {
   const transactions = await db
     .collection("transactions")
     .find({ address })
-    .sort({ block_number: -1 })
     .toArray();
   return transactions.map((tx) => {
     return {

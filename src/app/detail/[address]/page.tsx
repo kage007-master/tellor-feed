@@ -22,6 +22,7 @@ interface DataType {
   address: string;
   trb: number;
   receipt_status: number;
+  block_number: number;
 }
 
 export default function Home({ params }: { params: { address: string } }) {
@@ -142,6 +143,8 @@ export default function Home({ params }: { params: { address: string } }) {
     {
       title: "Block",
       dataIndex: "block_number",
+      sorter: (a, b) => Number(a.block_number) - Number(b.block_number),
+      defaultSortOrder: "descend",
     },
     {
       title: "Fee",
