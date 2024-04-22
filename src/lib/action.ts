@@ -89,11 +89,11 @@ export const updateTxs = async (address: string, block_number: number) => {
       address,
       hash: txs[i].hash,
       key: txs[i].hash,
-      gas_price: txs[i].gas_price,
-      block_number: txs[i].block_number,
+      gas_price: Number(txs[i].gas_price),
+      block_number: Number(txs[i].block_number),
       block_timestamp: txs[i].block_timestamp,
-      receipt_gas_used: txs[i].receipt_gas_used,
-      receipt_status: txs[i].receipt_status,
+      receipt_gas_used: Number(txs[i].receipt_gas_used),
+      receipt_status: Number(txs[i].receipt_status),
       trb: transfer
         ? Number(transfer.value_decimal) > 10
           ? 0
