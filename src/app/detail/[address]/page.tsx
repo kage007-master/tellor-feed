@@ -143,14 +143,12 @@ export default function Home({ params }: { params: { address: string } }) {
     {
       title: "Block",
       dataIndex: "block_number",
-      sorter: (a, b) => Number(a.block_number) - Number(b.block_number),
-      defaultSortOrder: "descend",
     },
     {
       title: "Fee",
       dataIndex: "receipt_gas_used",
       sorter: (a, b) =>
-        a.receipt_gas_used * a.gas_price - a.receipt_gas_used * a.gas_price,
+        a.receipt_gas_used * a.gas_price - b.receipt_gas_used * b.gas_price,
       render: (receipt_gas_used, _v) =>
         ((receipt_gas_used * _v.gas_price) / 1e18).toFixed(8) +
         " ($" +

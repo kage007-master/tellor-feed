@@ -13,19 +13,21 @@ export default async (address: string) => {
     .collection("transactions")
     .find({ address })
     .toArray();
-  return transactions.map((tx) => {
-    return {
-      address: tx.address,
-      hash: tx.hash,
-      key: tx.key,
-      gas_price: tx.gas_price,
-      block_number: tx.block_number,
-      receipt_gas_used: tx.receipt_gas_used,
-      block_timestamp: tx.block_timestamp,
-      receipt_status: tx.receipt_status,
-      trb: tx.trb,
-    };
-  });
+  return transactions
+    .map((tx) => {
+      return {
+        address: tx.address,
+        hash: tx.hash,
+        key: tx.key,
+        gas_price: tx.gas_price,
+        block_number: Number(tx.block_number),
+        receipt_gas_used: tx.receipt_gas_used,
+        block_timestamp: tx.block_timestamp,
+        receipt_status: tx.receipt_status,
+        trb: tx.trb,
+      };
+    })
+    .sort((a, b) => b.block_number - a.block_number);
 };
 
 export const updateTxs = async (address: string, block_number: number) => {
