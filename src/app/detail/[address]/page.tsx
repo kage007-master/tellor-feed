@@ -35,7 +35,7 @@ export default function Home({ params }: { params: { address: string } }) {
   const [loading, setLoading] = useState(false);
 
   const calcFee = (txs: any[]) => {
-    let totalFee = params.address === Config.MY_ADDRESS ? 94521080000000000 : 0;
+    let totalFee = 0; //params.address === Config.MY_ADDRESS ? 94521080000000000 : 0;
     let trbBalance = 0;
     for (var i = 0; i < txs.length; i++) {
       totalFee += Number(txs[i].receipt_gas_used) * Number(txs[i].gas_price);

@@ -9,7 +9,7 @@ export const notWorkingList = [
   "0xf57d763ae9c9944b21de6dc05edf73e4edc1ad0b",
   "0x4fb38ca5a8b14a1eb9140002a45dc47c8531ae67",
   //"0x5670d6fbf43877470a5e1295267adfb741408eb7",
-  //"0x50a86759d495ecfa7c301071d6b0bdd4bd664ab0",
+  "0x50a86759d495ecfa7c301071d6b0bdd4bd664ab0",
 ];
 
 export const names = {
