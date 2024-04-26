@@ -11,7 +11,6 @@ import Link from "next/link";
 import { LineChartOutlined, SyncOutlined } from "@ant-design/icons";
 import getData, { updateTxs } from "@/lib/action";
 import { getBlockNumber } from "@/utils/etherjs";
-import Config from "@/config/settings";
 import ReactECharts from "echarts-for-react";
 
 interface DataType {
@@ -48,17 +47,23 @@ export default function Home({ params }: { params: { address: string } }) {
     let total: any = {},
       success: any = {},
       fail: any = {},
-      claim: any = {};
+      claim: any = {},
+      average: any = {},
+      trb: any = {};
     for (let i = 0; i < txs.length; i++) {
       const date = moment(txs[i].block_timestamp).format("MM/DD");
       const income =
         txs[i].trb * tellorPrice -
         ((txs[i].receipt_gas_used * txs[i].gas_price) / 1e18) * ethPrice;
       if (!total[date])
-        (total[date] = income), (success[date] = fail[date] = claim[date] = 0);
-      else total[date] += income;
+        (total[date] = income),
+          (success[date] = fail[date] = claim[date] = 0),
+          (trb[date] = txs[i].trb);
+      else (total[date] += income), (trb[date] += txs[i].trb);
       if (Number(txs[i].receipt_status) === 1)
-        (success[date] += income), claim[date]++;
+        (success[date] += income),
+          claim[date]++,
+          (average[date] = total[date] / claim[date]);
       else fail[date] += income;
     }
     return {
@@ -66,7 +71,7 @@ export default function Home({ params }: { params: { address: string } }) {
         trigger: "axis",
       },
       legend: {
-        data: ["Total", "Success", "Fail", "Claim"],
+        data: ["Total", "Success", "Average", "Fail", "Claim", "TRB"],
       },
       grid: {
         left: "3%",
@@ -74,7 +79,7 @@ export default function Home({ params }: { params: { address: string } }) {
         bottom: "3%",
         containLabel: true,
       },
-      color: ["#5470c6", "#91cc75", "#ee6666", "#9a60b4"],
+      color: ["#5470c6", "#91cc75", "#37A2FF", "#ee6666", "#9a60b4", "#3ba272"],
       xAxis: {
         type: "category",
         boundaryGap: false,
@@ -88,25 +93,47 @@ export default function Home({ params }: { params: { address: string } }) {
           name: "Total",
           type: "line",
           stack: "Total",
-          data: Object.values(total).reverse(),
+          data: Object.values(total)
+            .reverse()
+            .map((val: any) => val.toFixed(2)),
         },
         {
           name: "Success",
           type: "line",
           stack: "Success",
-          data: Object.values(success).reverse(),
+          data: Object.values(success)
+            .reverse()
+            .map((val: any) => val.toFixed(2)),
+        },
+        {
+          name: "Average",
+          type: "line",
+          stack: "Average",
+          data: Object.values(average)
+            .reverse()
+            .map((val: any) => val.toFixed(2)),
         },
         {
           name: "Fail",
           type: "line",
           stack: "Fail",
-          data: Object.values(fail).reverse(),
+          data: Object.values(fail)
+            .reverse()
+            .map((val: any) => val.toFixed(2)),
         },
         {
           name: "Claim",
           type: "line",
           stack: "Claim",
           data: Object.values(claim).reverse(),
+        },
+        {
+          name: "TRB",
+          type: "line",
+          stack: "TRB",
+          data: Object.values(trb)
+            .reverse()
+            .map((val: any) => val.toFixed(2)),
         },
       ],
     };
@@ -196,7 +223,7 @@ export default function Home({ params }: { params: { address: string } }) {
         Earning:{" "}
         {(trbBalance * tellorPrice - (totalFee / 1e18) * ethPrice).toFixed(2)}
       </div>
-      <div className="div flex gap-4 items-center">
+      <div className="div flex gap-8 items-center">
         <Checkbox
           checked={hideFailed}
           onChange={() => setHideFailed(!hideFailed)}
@@ -204,12 +231,12 @@ export default function Home({ params }: { params: { address: string } }) {
           Hide Failed
         </Checkbox>
         <div className="flex gap-2 items-center">
-          From: <Input style={{ width: "20%" }} size="small" />
-          To: <Input style={{ width: "20%" }} size="small" />
+          From: <Input style={{ width: "80px" }} size="small" />
+          To: <Input style={{ width: "80px" }} size="small" />
           <Button size="small">Search</Button>
         </div>
         <Checkbox checked={viewChart} onChange={() => setViewChart(!viewChart)}>
-          View Chart
+          <LineChartOutlined />
         </Checkbox>
         <Button
           className="ml-auto"
