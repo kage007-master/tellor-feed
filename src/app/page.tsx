@@ -22,7 +22,7 @@ import { getDuration } from "@/utils/math";
 import Config from "@/config/settings";
 import Link from "next/link";
 import { TellorFlex } from "@/utils/etherjs";
-import { names, notWorkingList } from "@/utils/const";
+import { names, notContracts, notWorkingList } from "@/utils/const";
 
 const StakerNames: any = names;
 
@@ -96,8 +96,9 @@ export default function Home() {
                 ? "text-[red]"
                 : StakerNames[address]
                 ? "text-[#2d8cf3]"
-                : _v.isContract
-                ? "text-[blue]"
+                : notContracts.findIndex((_address) => _address === address) !=
+                  -1
+                ? "text-[coral]"
                 : "text-white"
             }`}
             href={`/detail/${address}`}
