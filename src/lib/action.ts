@@ -17,7 +17,6 @@ export default async (address: string) => {
     .map((tx) => {
       return {
         address: tx.address,
-        hash: tx.hash,
         key: tx.key,
         gas_price: tx.gas_price,
         block_number: Number(tx.block_number),
@@ -88,7 +87,6 @@ export const updateTxs = async (address: string, block_number: number) => {
     });
     await db.collection("transactions").insertOne({
       address,
-      hash: txs[i].hash,
       key: txs[i].hash,
       gas_price: Number(txs[i].gas_price),
       block_number: Number(txs[i].block_number),

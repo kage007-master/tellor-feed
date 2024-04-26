@@ -127,7 +127,7 @@ export default function Home({ params }: { params: { address: string } }) {
     },
     {
       title: "TxId",
-      dataIndex: "hash",
+      dataIndex: "key",
       render: (hash, _v) => (
         <Link
           target="_blank"
