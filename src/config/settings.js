@@ -7,8 +7,7 @@ export default {
   MY_ADDRESS: "0x848eb18bfef7d91587020cf6c4d149cab525bc2e",
   RPC_URL:
     "https://mainnet.chainnodes.org/e48ca752-0b57-41d0-b9c3-36853df4c3dd",
-  SUBGRAPH_URL:
-    "https://api.thegraph.com/subgraphs/name/everest-dev0323/telliot",
+  SUBGRAPH_URL: "https://api.studio.thegraph.com/query/73546/telliot/v0.0.2",
   MONGODB_URL:
     "mongodb+srv://hayatedustin:VZkwJ7cJmikaFuYJ@cluster0.wbzszq0.mongodb.net/",
 };
