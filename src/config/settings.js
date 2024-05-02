@@ -5,8 +5,10 @@ export default {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6Ijc5NzRiYTJkLTRjYjAtNDg3OS1iZDEwLWQ2Zjg2NjliMmI5MyIsIm9yZ0lkIjoiMzQ3ODMyIiwidXNlcklkIjoiMzU3NTM4IiwidHlwZUlkIjoiZjg0Yzg0ZGUtNjYyMi00YjRjLWE0N2MtMWVjN2VmODdjZmFhIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2ODkxMzA2MjcsImV4cCI6NDg0NDg5MDYyN30.xn0X32pp14JYfCiTlaEJ5s4-WdAoNtqi3fEtNEkMvdg",
   CONTRACT_ADDRESS: "0x8cfc184c877154a8f9ffe0fe75649dbe5e2dbebf",
   MY_ADDRESS: "0x848eb18bfef7d91587020cf6c4d149cab525bc2e",
+  // RPC_URL:
+  //   "https://mainnet.chainnodes.org/e48ca752-0b57-41d0-b9c3-36853df4c3dd",
   RPC_URL:
-    "https://mainnet.chainnodes.org/e48ca752-0b57-41d0-b9c3-36853df4c3dd",
+    "https://eth-mainnet.g.alchemy.com/v2/98qEi-oHY4IF8-_QykR99CasA9z0Nywr",
   SUBGRAPH_URL: "https://api.studio.thegraph.com/query/73546/telliot/v0.0.2",
   MONGODB_URL:
     "mongodb+srv://hayatedustin:VZkwJ7cJmikaFuYJ@cluster0.wbzszq0.mongodb.net/",
