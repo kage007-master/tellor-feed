@@ -36,4 +36,5 @@ export const notContracts = [
   "0x46523a59f516581416863358338010de7ceb7b83",
   "0xf2e6b1d8a87e1cf2b382f7a4ab77329e9784d23b",
   "0x0d7effefdb084dfeb1621348c8c70cc4e871eba4",
+  "0x69eace431fec9e6b1535dafa3873bb23c995be93",
 ];
