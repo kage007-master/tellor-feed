@@ -167,12 +167,12 @@ export default function Home({ params }: { params: { address: string } }) {
       ),
     },
     {
-      title: "Block",
-      dataIndex: "block_number",
-    },
-    {
       title: "Method",
       dataIndex: "method",
+    },
+    {
+      title: "Block",
+      dataIndex: "block_number",
     },
     {
       title: "Fee",
@@ -216,11 +216,9 @@ export default function Home({ params }: { params: { address: string } }) {
         >
           {params.address}
         </a>
-        Fee: {(totalFee / 1e18).toFixed(8)} (
-        {((totalFee / 1e18) * ethPrice).toFixed(2)}) Reward:{" "}
+        Fee: {totalFee.toFixed(8)} ({(totalFee * ethPrice).toFixed(2)}) Reward:{" "}
         {trbBalance.toFixed(2)} ({(trbBalance * tellorPrice).toFixed(2)})
-        Earning:{" "}
-        {(trbBalance * tellorPrice - (totalFee / 1e18) * ethPrice).toFixed(2)}
+        Earning: {(trbBalance * tellorPrice - totalFee * ethPrice).toFixed(2)}
       </div>
       <div className="div flex gap-8 items-center">
         <Checkbox
