@@ -92,7 +92,7 @@ export const updateTxs = async (address: string, block_number: number) => {
       gas_price: Number(txs[i].gas_price),
       block_number: Number(txs[i].block_number),
       block_timestamp: txs[i].block_timestamp,
-      transaction_fee: txs[i].transaction_fee,
+      transaction_fee: Number(txs[i].transaction_fee),
       method: txs[i].input.slice(0, 10),
       receipt_status: Number(txs[i].receipt_status),
       trb: transfer
