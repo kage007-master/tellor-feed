@@ -17,7 +17,7 @@ interface DataType {
   key: React.Key;
   name: string;
   gas_price: number;
-  receipt_gas_used: number;
+  transaction_fee: number;
   address: string;
   trb: number;
   receipt_status: number;
@@ -37,7 +37,7 @@ export default function Home({ params }: { params: { address: string } }) {
     let totalFee = 0; //params.address === Config.MY_ADDRESS ? 94521080000000000 : 0;
     let trbBalance = 0;
     for (var i = 0; i < txs.length; i++) {
-      totalFee += Number(txs[i].receipt_gas_used) * Number(txs[i].gas_price);
+      totalFee += txs[i].transaction_fee;
       trbBalance += txs[i].trb;
     }
     return { totalFee, trbBalance };
@@ -53,8 +53,7 @@ export default function Home({ params }: { params: { address: string } }) {
     for (let i = 0; i < txs.length; i++) {
       const date = moment(txs[i].block_timestamp).format("MM/DD");
       const income =
-        txs[i].trb * tellorPrice -
-        ((txs[i].receipt_gas_used * txs[i].gas_price) / 1e18) * ethPrice;
+        txs[i].trb * tellorPrice - txs[i].transaction_fee * ethPrice;
       if (!total[date])
         (total[date] = income),
           (success[date] = fail[date] = claim[date] = 0),
@@ -172,14 +171,17 @@ export default function Home({ params }: { params: { address: string } }) {
       dataIndex: "block_number",
     },
     {
+      title: "Method",
+      dataIndex: "method",
+    },
+    {
       title: "Fee",
-      dataIndex: "receipt_gas_used",
-      sorter: (a, b) =>
-        a.receipt_gas_used * a.gas_price - b.receipt_gas_used * b.gas_price,
-      render: (receipt_gas_used, _v) =>
-        ((receipt_gas_used * _v.gas_price) / 1e18).toFixed(8) +
+      dataIndex: "transaction_fee",
+      sorter: (a, b) => a.transaction_fee - b.transaction_fee,
+      render: (transaction_fee) =>
+        transaction_fee.toFixed(8) +
         " ($" +
-        (((receipt_gas_used * _v.gas_price) / 1e18) * ethPrice).toFixed(2) +
+        (transaction_fee * ethPrice).toFixed(2) +
         ")",
     },
     {
@@ -202,10 +204,7 @@ export default function Home({ params }: { params: { address: string } }) {
       title: "Income",
       dataIndex: "trb",
       render: (trb, _v) =>
-        (
-          trb * tellorPrice -
-          ((_v.receipt_gas_used * _v.gas_price) / 1e18) * ethPrice
-        ).toFixed(2),
+        (trb * tellorPrice - _v.transaction_fee * ethPrice).toFixed(2),
     },
   ];
   return (

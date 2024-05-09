@@ -20,7 +20,8 @@ export default async (address: string) => {
         key: tx.key,
         gas_price: tx.gas_price,
         block_number: Number(tx.block_number),
-        receipt_gas_used: tx.receipt_gas_used,
+        transaction_fee: tx.transaction_fee,
+        method: tx.method,
         block_timestamp: tx.block_timestamp,
         receipt_status: tx.receipt_status,
         trb: tx.trb,
@@ -91,7 +92,8 @@ export const updateTxs = async (address: string, block_number: number) => {
       gas_price: Number(txs[i].gas_price),
       block_number: Number(txs[i].block_number),
       block_timestamp: txs[i].block_timestamp,
-      receipt_gas_used: Number(txs[i].receipt_gas_used),
+      transaction_fee: txs[i].transaction_fee,
+      method: txs[i].input.slice(0, 10),
       receipt_status: Number(txs[i].receipt_status),
       trb: transfer
         ? Number(transfer.value_decimal) > 10

@@ -5,8 +5,5 @@ export const getGasUsage = async (txid: string) => {
     chain: "0x1",
     transactionHash: txid,
   });
-  return (
-    (Number(response?.raw.receipt_gas_used) * Number(response?.raw.gas_price)) /
-    1e18
-  );
+  return response?.raw.transaction_fee;
 };

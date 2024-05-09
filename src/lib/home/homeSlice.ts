@@ -116,7 +116,7 @@ export const getRecentEarnings = createAsyncThunk(
         withGasUage.push({
           ...filtered[i],
           fee: tx
-            ? (Number(tx.receipt_gas_used) * Number(tx.gas_price)) / 1e18
+            ? tx.transaction_fee
             : await getGasUsage(filtered[i].transaction_hash),
         });
       }
