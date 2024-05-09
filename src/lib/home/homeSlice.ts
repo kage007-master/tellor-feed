@@ -110,7 +110,7 @@ export const getRecentEarnings = createAsyncThunk(
 
       const withGasUage = [];
       for (let i = 0; i < filtered.length; i++) {
-        const tx = response1.raw.result.find(
+        const tx: any = response1.raw.result.find(
           (txID) => txID.hash === filtered[i].transaction_hash
         );
         withGasUage.push({
