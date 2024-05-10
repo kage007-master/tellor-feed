@@ -15,6 +15,10 @@ import type { TableColumnsType } from "antd";
 import {
   CheckCircleTwoTone,
   CloseCircleTwoTone,
+  CopyOutlined,
+  EyeFilled,
+  EyeInvisibleFilled,
+  EyeOutlined,
   SyncOutlined,
   WarningTwoTone,
 } from "@ant-design/icons";
@@ -42,6 +46,7 @@ export default function Home() {
   const { ethPrice, tellorPrice, currentTimeStamp, reporters, lastTimeStamp } =
     useSelector((state: RootState) => state.home);
   const [hideNotWorking, setHideNotWorking] = useState(false);
+  const [list, setList] = useState(notWorkingList);
   const recentEarnings = useSelector(
     (state: RootState) => state.home.recentEarnings
   );
@@ -119,6 +124,30 @@ export default function Home() {
           >
             <Image src={"/debank.png"} width={20} height={20} alt="debank" />
           </Link>
+          <Button
+            type="text"
+            size="small"
+            shape="circle"
+            icon={<CopyOutlined />}
+            onClick={async () => await navigator.clipboard.writeText(address)}
+          />
+          <Button
+            type="text"
+            size="small"
+            shape="circle"
+            icon={
+              list.findIndex((_address) => _address === address) == -1 ? (
+                <EyeFilled />
+              ) : (
+                <EyeInvisibleFilled />
+              )
+            }
+            onClick={() => {
+              list.findIndex((_address) => _address === address) == -1
+                ? setList([...list, address])
+                : setList(list.filter((_address) => _address != address));
+            }}
+          />
         </div>
       ),
     },
@@ -237,7 +266,7 @@ export default function Home() {
           hideNotWorking
             ? reporters.filter(
                 (reporter) =>
-                  notWorkingList.findIndex(
+                  list.findIndex(
                     (address) => address === reporter.id.toLocaleLowerCase()
                   ) == -1 &&
                   (reporter.id.toLocaleLowerCase() !==

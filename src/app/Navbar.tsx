@@ -8,6 +8,8 @@ import Config from "@/config/settings";
 import Link from "next/link";
 import Image from "next/image";
 import { shortenName } from "@/utils/string";
+import { Button } from "antd";
+import { CopyOutlined } from "@ant-design/icons";
 
 export default function Navbar() {
   const { gasPrice, ethPrice, tellorPrice, avaliableEarning } = useSelector(
@@ -51,6 +53,15 @@ export default function Navbar() {
         >
           <Image src={"/debank.png"} width={20} height={20} alt="debank" />
         </Link>
+        <Button
+          type="text"
+          size="small"
+          shape="circle"
+          icon={<CopyOutlined />}
+          onClick={async () =>
+            await navigator.clipboard.writeText(Config.CONTRACT_ADDRESS)
+          }
+        />
       </div>
     </nav>
   );
