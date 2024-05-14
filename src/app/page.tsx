@@ -18,7 +18,6 @@ import {
   CopyOutlined,
   EyeFilled,
   EyeInvisibleFilled,
-  EyeOutlined,
   SyncOutlined,
   WarningTwoTone,
 } from "@ant-design/icons";
