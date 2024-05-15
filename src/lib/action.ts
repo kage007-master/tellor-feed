@@ -3,6 +3,7 @@
 import clientPromise from "@/lib/mongodb";
 import Moralis from "moralis";
 import Config from "@/config/settings";
+import { number } from "echarts";
 
 const status = { started: false };
 
@@ -146,4 +147,19 @@ export const updateReporters = async (reporters: any[]) => {
     };
   }
   return res;
+};
+
+export const addRecents = async (
+  address: string,
+  _new: number,
+  _olds: number[]
+) => {
+  const client = await clientPromise;
+  const db = client.db("tellor-feed");
+  await db
+    .collection("reporters")
+    .findOneAndUpdate(
+      { address },
+      { $set: { recents: [_new, ..._olds].splice(0, 10) } }
+    );
 };
