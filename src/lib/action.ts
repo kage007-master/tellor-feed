@@ -38,9 +38,10 @@ export const updateTxs = async (address: string, block_number: number) => {
 
   const client = await clientPromise;
   const db = client.db("tellor-feed");
-  const lastUpdate = await db.collection("update-info").findOne({ address });
+  const lastUpdate = await db.collection("reporters").findOne({ address });
+  if (!lastUpdate) return;
   let fromBlock = 18371578;
-  if (lastUpdate) fromBlock = lastUpdate.blockNumber;
+  if (lastUpdate.lastUpdate) fromBlock = lastUpdate.lastUpdate;
 
   let txs: any[] = [],
     transfers: any[] = [];
@@ -91,7 +92,7 @@ export const updateTxs = async (address: string, block_number: number) => {
       key: txs[i].hash,
       gas_price: Number(txs[i].gas_price),
       block_number: Number(txs[i].block_number),
-      block_timestamp: txs[i].block_timestamp,
+      block_timestamp: new Date(txs[i].block_timestamp),
       transaction_fee: Number(txs[i].transaction_fee),
       method: txs[i].input.slice(0, 10),
       receipt_status: Number(txs[i].receipt_status),
@@ -102,17 +103,47 @@ export const updateTxs = async (address: string, block_number: number) => {
         : 0,
     });
     if (i === 0) {
-      if (fromBlock === 18371578)
-        await db
-          .collection("update-info")
-          .insertOne({ address, blockNumber: Number(txs[i].block_number) + 1 });
-      else
-        await db
-          .collection("update-info")
-          .findOneAndUpdate(
-            { address },
-            { $set: { blockNumber: Number(txs[i].block_number) + 1 } }
-          );
+      await db
+        .collection("reporters")
+        .findOneAndUpdate(
+          { address },
+          { $set: { lastUpdate: Number(txs[i].block_number) + 1 } }
+        );
     }
   }
+};
+
+export const updateReporters = async (reporters: any[]) => {
+  const client = await clientPromise;
+  const db = client.db("tellor-feed");
+  for (let i = 0; i < reporters.length; i++) {
+    const reporter = await db
+      .collection("reporters")
+      .findOne({ address: reporters[i].id });
+    if (!reporter) {
+      await db.collection("reporters").insertOne({
+        address: reporters[i].id,
+        isContract: true,
+        isWorking: true,
+        lastUpdate: 0,
+        recents: [],
+        label: "",
+      });
+    }
+  }
+  const saved_data = await db.collection("reporters").find().toArray();
+  let res = {};
+  for (let i = 0; i < saved_data.length; i++) {
+    res = {
+      ...res,
+      [saved_data[i].address]: {
+        isContract: saved_data[i].isContract,
+        isWorking: saved_data[i].isWorking,
+        lastUpdate: saved_data[i].lastUpdate,
+        recents: saved_data[i].recents,
+        label: saved_data[i].label,
+      },
+    };
+  }
+  return res;
 };

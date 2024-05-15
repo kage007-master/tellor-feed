@@ -25,9 +25,7 @@ import { getDuration } from "@/utils/math";
 import Config from "@/config/settings";
 import Link from "next/link";
 import { TellorFlex } from "@/utils/etherjs";
-import { names, notContracts, notWorkingList } from "@/utils/const";
-
-const StakerNames: any = names;
+import { updateReporters } from "@/lib/action";
 
 interface DataType {
   key: React.Key;
@@ -45,7 +43,7 @@ export default function Home() {
   const { ethPrice, tellorPrice, currentTimeStamp, reporters, lastTimeStamp } =
     useSelector((state: RootState) => state.home);
   const [hideNotWorking, setHideNotWorking] = useState(false);
-  const [list, setList] = useState(notWorkingList);
+  const [reportersData, setReportersData] = useState<any>({});
   const recentEarnings = useSelector(
     (state: RootState) => state.home.recentEarnings
   );
@@ -83,6 +81,12 @@ export default function Home() {
     }
   }, [lastTimeStamp]);
 
+  useEffect(() => {
+    (async () => {
+      setReportersData(await updateReporters(reporters));
+    })();
+  }, [reporters]);
+
   const columns: TableColumnsType<DataType> = [
     {
       title: "No",
@@ -98,17 +102,16 @@ export default function Home() {
             className={`${
               address === Config.MY_ADDRESS
                 ? "text-[red]"
-                : StakerNames[address]
+                : reportersData[address]?.label
                 ? "text-[#2d8cf3]"
-                : notContracts.findIndex((_address) => _address === address) !=
-                  -1
-                ? "text-[coral]"
-                : "text-white"
+                : reportersData[address]?.isContract
+                ? "text-white"
+                : "text-[coral]"
             }`}
             href={`/detail/${address}`}
           >
-            {StakerNames[address]
-              ? StakerNames[address]
+            {reportersData[address]?.label
+              ? reportersData[address].label
               : shortenName(address, 12)}
           </Link>
           <Link
@@ -135,16 +138,22 @@ export default function Home() {
             size="small"
             shape="circle"
             icon={
-              list.findIndex((_address) => _address === address) == -1 ? (
-                <EyeFilled />
-              ) : (
+              reportersData[address]?.isWorking ? (
                 <EyeInvisibleFilled />
+              ) : (
+                <EyeFilled />
               )
             }
             onClick={() => {
-              list.findIndex((_address) => _address === address) == -1
-                ? setList([...list, address])
-                : setList(list.filter((_address) => _address != address));
+              setReportersData({
+                ...reportersData,
+                [address]: {
+                  isContract: reportersData[address].isContract,
+                  isWorking: !reportersData[address].isWorking,
+                  lastUpdate: reportersData[address].lastUpdate,
+                  recents: reportersData[address].recents,
+                },
+              });
             }}
           />
         </div>
@@ -265,9 +274,7 @@ export default function Home() {
           hideNotWorking
             ? reporters.filter(
                 (reporter) =>
-                  list.findIndex(
-                    (address) => address === reporter.id.toLocaleLowerCase()
-                  ) == -1 &&
+                  reportersData[reporter.id]?.isWorking &&
                   (reporter.id.toLocaleLowerCase() !==
                     "0xa8d96836517ae9d3a46b3f99190ed984f74adfd3" ||
                     currentTimeStamp - reporter.lastTimestamp > 3600 * 23)

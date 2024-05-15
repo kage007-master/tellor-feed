@@ -177,7 +177,6 @@ export default function Home({ params }: { params: { address: string } }) {
     {
       title: "Fee",
       dataIndex: "transaction_fee",
-      sorter: (a, b) => a.transaction_fee - b.transaction_fee,
       render: (transaction_fee) =>
         transaction_fee.toFixed(8) +
         " ($" +

@@ -27,19 +27,19 @@ export default function Navbar() {
     };
   }, []);
   return (
-    <nav className="!z-50 flex gap-2 px-5 py-2 fixed bg-[#aaa] w-full">
+    <nav className="!z-50 flex gap-4 px-5 py-2 fixed bg-[#aaa] w-full">
       <div>Gas: {(gasPrice / 1e9).toFixed(0)} Gwei</div>
-      <div className="flex items-center">
-        <Image src={"/ETH.png"} width={20} height={20} alt="eth" />
-        ETH: {ethPrice}
+      <div className="flex items-center gap-1">
+        <Image src="/ETH.png" width={20} height={20} alt="eth" />
+        ETH: ${ethPrice}
       </div>
-      <div className="flex items-center">
-        <Image src={"/TRB.png"} width={20} height={20} alt="trb" />
-        TRB: {tellorPrice}
+      <div className="flex items-center gap-1">
+        <Image src="/TRB.png" width={20} height={20} alt="trb" />
+        TRB: ${tellorPrice}
       </div>
       <div>Reward: {avaliableEarning}</div>
       <div>
-        Profit:{" "}
+        Profit: $
         {(
           avaliableEarning * tellorPrice -
           ((gasPrice * 272954) / 1e18) * ethPrice
