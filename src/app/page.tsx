@@ -90,7 +90,7 @@ export default function Home() {
     (async () => {
       setReportersData(await updateReporters(reporters));
     })();
-  }, [reporters]);
+  }, [reporters.length]);
 
   const columns: TableColumnsType<DataType> = [
     {

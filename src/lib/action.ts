@@ -3,9 +3,8 @@
 import clientPromise from "@/lib/mongodb";
 import Moralis from "moralis";
 import Config from "@/config/settings";
-import { number } from "echarts";
 
-const status = { started: false };
+const status = { started: false, capture: false };
 
 export default async (address: string) => {
   const client = await clientPromise;
@@ -115,6 +114,10 @@ export const updateTxs = async (address: string, block_number: number) => {
 };
 
 export const updateReporters = async (reporters: any[]) => {
+  if (!status.capture) {
+    console.log("start");
+    status.capture = true;
+  }
   const client = await clientPromise;
   const db = client.db("tellor-feed");
   for (let i = 0; i < reporters.length; i++) {
@@ -154,6 +157,8 @@ export const addRecents = async (
   _new: number,
   _olds: number[]
 ) => {
+  console.log(_new, _olds, [_new, ..._olds].splice(0, 10));
+
   const client = await clientPromise;
   const db = client.db("tellor-feed");
   await db
