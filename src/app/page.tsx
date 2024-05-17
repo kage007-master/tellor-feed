@@ -167,7 +167,7 @@ export default function Home() {
     {
       title: "Recents",
       dataIndex: "id",
-      render: (address) => reportersData[address]?.recents.join(","),
+      render: (address) => reportersData[address]?.recents.join(", "),
     },
     {
       title: "Amount",

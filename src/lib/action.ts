@@ -157,8 +157,6 @@ export const addRecents = async (
   _new: number,
   _olds: number[]
 ) => {
-  console.log(_new, _olds, [_new, ..._olds].splice(0, 10));
-
   const client = await clientPromise;
   const db = client.db("tellor-feed");
   await db
