@@ -105,7 +105,7 @@ export default function Home() {
           <Link
             target="_blank"
             className={`${
-              address === Config.MY_ADDRESS
+              address === Config.MY_ADDRESS1 || address === Config.MY_ADDRESS2
                 ? "text-[red]"
                 : reportersData[address]?.label
                 ? "text-[#2d8cf3]"
@@ -201,7 +201,9 @@ export default function Home() {
         return (
           <div
             className={`${
-              data.id === Config.MY_ADDRESS ? "text-[red]" : "text-white"
+              data.id === Config.MY_ADDRESS1 || data.id === Config.MY_ADDRESS2
+                ? "text-[red]"
+                : "text-white"
             } flex gap-2`}
           >
             {minus ? "-" : ""}

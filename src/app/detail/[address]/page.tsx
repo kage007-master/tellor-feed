@@ -34,7 +34,7 @@ export default function Home({ params }: { params: { address: string } }) {
   const [loading, setLoading] = useState(false);
 
   const calcFee = (txs: any[]) => {
-    let totalFee = 0; //params.address === Config.MY_ADDRESS ? 94521080000000000 : 0;
+    let totalFee = 0;
     let trbBalance = 0;
     for (var i = 0; i < txs.length; i++) {
       totalFee += txs[i].transaction_fee;
@@ -59,7 +59,10 @@ export default function Home({ params }: { params: { address: string } }) {
           (success[date] = fail[date] = claim[date] = 0),
           (trb[date] = txs[i].trb);
       else (total[date] += income), (trb[date] += txs[i].trb);
-      if (Number(txs[i].receipt_status) === 1)
+      if (
+        Number(txs[i].receipt_status) === 1 &&
+        txs[i].trb.toFixed(2) != "0.00"
+      )
         (success[date] += income),
           claim[date]++,
           (average[date] = total[date] / claim[date]);
