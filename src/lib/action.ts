@@ -3,8 +3,9 @@
 import clientPromise from "@/lib/mongodb";
 import Moralis from "moralis";
 import Config from "@/config/settings";
+import { TellorFlex } from "@/utils/etherjs";
 
-const status = { started: false, capture: false };
+const status = { started: false, capture: false, prevTimeStamp: 0 };
 
 export default async (address: string) => {
   const client = await clientPromise;
@@ -116,6 +117,25 @@ export const updateTxs = async (address: string, block_number: number) => {
 export const updateReporters = async (reporters: any[]) => {
   if (!status.capture) {
     console.log("start");
+
+    TellorFlex.on(
+      "NewReport",
+      async (
+        _queryId,
+        _time,
+        _value,
+        _nonce,
+        _queryData,
+        _reporter,
+        ...rest: any
+      ) => {
+        const { getTransactionReceipt } = rest[0];
+        const earning = (_time - status.prevTimeStamp) / 600;
+        status.prevTimeStamp = _time;
+        const res = await getTransactionReceipt();
+        console.log(earning);
+      }
+    );
     status.capture = true;
   }
   const client = await clientPromise;
