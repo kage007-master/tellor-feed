@@ -117,7 +117,7 @@ export const updateTxs = async (address: string, block_number: number) => {
 
 export const updateReporters = async (reporters: any[]) => {
   if (!status.capture) {
-    const socket = require("socket.io-client")("http://95.217.47.46:3000");
+    const socket = require("socket.io-client")("https://95.217.47.46:3000");
     socket.on("NewReport", async (res: any) => {
       const client = await clientPromise;
       const db = client.db("tellor-feed");
