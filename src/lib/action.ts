@@ -4,6 +4,7 @@ import clientPromise from "@/lib/mongodb";
 import Moralis from "moralis";
 import Config from "@/config/settings";
 import { TellorFlex } from "@/utils/etherjs";
+import { socket } from "./socket";
 
 const status = { started: false, capture: false, prevTimeStamp: 0 };
 
@@ -116,26 +117,22 @@ export const updateTxs = async (address: string, block_number: number) => {
 
 export const updateReporters = async (reporters: any[]) => {
   if (!status.capture) {
-    console.log("start");
-
-    TellorFlex.on(
-      "NewReport",
-      async (
-        _queryId,
-        _time,
-        _value,
-        _nonce,
-        _queryData,
-        _reporter,
-        ...rest: any
-      ) => {
-        const { getTransactionReceipt } = rest[0];
-        const earning = (_time - status.prevTimeStamp) / 600;
-        status.prevTimeStamp = _time;
-        const res = await getTransactionReceipt();
-        console.log(earning);
+    const socket = require("socket.io-client")("http://95.217.47.46:3000");
+    socket.on("NewReport", async (res: any) => {
+      const client = await clientPromise;
+      const db = client.db("tellor-feed");
+      const data = await db
+        .collection("reporters")
+        .findOne({ address: res.reporter.toLowerCase() });
+      if (data) {
+        await db
+          .collection("reporters")
+          .updateOne(
+            { address: res.reporter.toLowerCase() },
+            { $set: { recents: [res.earning, ...data.recents] } }
+          );
       }
-    );
+    });
     status.capture = true;
   }
   const client = await clientPromise;
@@ -170,19 +167,4 @@ export const updateReporters = async (reporters: any[]) => {
     };
   }
   return res;
-};
-
-export const addRecents = async (
-  address: string,
-  _new: number,
-  _olds: number[]
-) => {
-  const client = await clientPromise;
-  const db = client.db("tellor-feed");
-  await db
-    .collection("reporters")
-    .findOneAndUpdate(
-      { address },
-      { $set: { recents: [_new, ..._olds].splice(0, 10) } }
-    );
 };

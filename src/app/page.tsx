@@ -25,7 +25,7 @@ import { getDuration } from "@/utils/math";
 import Config from "@/config/settings";
 import Link from "next/link";
 import { TellorFlex } from "@/utils/etherjs";
-import { addRecents, updateReporters } from "@/lib/action";
+import { updateReporters } from "@/lib/action";
 
 interface DataType {
   key: React.Key;
@@ -74,11 +74,6 @@ export default function Home() {
             const res = await getTransactionReceipt();
             dispatch(
               getLastEarnings({ res, earning, _reporter, _time, reporters })
-            );
-            await addRecents(
-              _reporter.toLocaleLowerCase(),
-              earning,
-              reportersData[_reporter.toLocaleLowerCase()].recents
             );
           }
         );

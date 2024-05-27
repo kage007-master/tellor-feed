@@ -5,7 +5,6 @@ import axios from "axios";
 import Moralis from "moralis";
 import Config from "@/config/settings";
 import { getGasUsage } from "@/utils/moralis";
-import { getTokenPrice } from "@/utils/api";
 import {
   getGasPrice,
   getCurrentTimeStamp,
@@ -41,8 +40,6 @@ const initialState: CounterState = {
 export const getPrices = createAsyncThunk(`getPrices`, async () => {
   try {
     return {
-      ethPrice: await getTokenPrice("ETH"),
-      tellorPrice: await getTokenPrice("TRB"),
       gasPrice: await getGasPrice(),
       currentTimeStamp: await getCurrentTimeStamp(),
       lastTimeStamp: await getLastestSubmissionTimestamp(),
@@ -152,6 +149,10 @@ export const counterSlice = createSlice({
       );
       if (idx != -1) state.reporters[idx].lastTimestamp = Number(payload._time);
     },
+    setPrices: (state, { payload }) => {
+      state.ethPrice = payload.ethusdt;
+      state.tellorPrice = payload.trbusdt;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getRecentEarnings.pending, (state) => {});
@@ -162,8 +163,6 @@ export const counterSlice = createSlice({
     builder.addCase(getPrices.pending, (state) => {});
     builder.addCase(getPrices.fulfilled, (state, { payload }) => {
       if (payload) {
-        state.ethPrice = payload.ethPrice;
-        state.tellorPrice = payload.tellorPrice;
         state.gasPrice = payload.gasPrice;
         state.currentTimeStamp = payload.currentTimeStamp;
         state.lastTimeStamp = payload.lastTimeStamp;
@@ -182,4 +181,4 @@ export const counterSlice = createSlice({
 
 export default counterSlice.reducer;
 
-export const { getLastEarnings } = counterSlice.actions;
+export const { getLastEarnings, setPrices } = counterSlice.actions;

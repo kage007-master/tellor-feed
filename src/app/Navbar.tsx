@@ -3,13 +3,14 @@
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/store";
 import { useEffect } from "react";
-import { getPrices } from "@/lib/home/homeSlice";
+import { getPrices, setPrices } from "@/lib/home/homeSlice";
 import Config from "@/config/settings";
 import Link from "next/link";
 import Image from "next/image";
 import { shortenName } from "@/utils/string";
 import { Button } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
+import { socket } from "@/lib/socket";
 
 export default function Navbar() {
   const { gasPrice, ethPrice, tellorPrice, avaliableEarning } = useSelector(
@@ -22,7 +23,11 @@ export default function Navbar() {
     const id = setInterval(() => {
       dispatch(getPrices());
     }, 12000);
+    socket.on("TokenPrices", (res: any) => {
+      dispatch(setPrices(res.data));
+    });
     return () => {
+      socket.off("TokenPrices");
       clearInterval(id);
     };
   }, []);
