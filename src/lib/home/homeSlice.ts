@@ -68,7 +68,6 @@ export const getReporters = createAsyncThunk(`getReporters`, async () => {
       reporters.push({
         ...data.data.newStakers[i],
         key: data.data.newStakers[i].id,
-        // isContract: (await getCode(data.data.newStakers[i].id)) === "0x",
       });
     }
     return reporters;

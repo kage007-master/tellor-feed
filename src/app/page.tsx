@@ -25,7 +25,7 @@ import { getDuration } from "@/utils/math";
 import Config from "@/config/settings";
 import Link from "next/link";
 import { TellorFlex } from "@/utils/etherjs";
-import { updateReporters } from "@/lib/action";
+import { getReportersData, updateReporters } from "@/lib/action";
 
 interface DataType {
   key: React.Key;
@@ -75,6 +75,7 @@ export default function Home() {
             dispatch(
               getLastEarnings({ res, earning, _reporter, _time, reporters })
             );
+            setReportersData(await getReportersData());
           }
         );
       }
@@ -230,16 +231,6 @@ export default function Home() {
         );
       },
     },
-    // {
-    //   title: "Actions",
-    //   render: () => {
-    //     return (
-    //       <>
-    //         <Button icon={<ProfileTwoTone />}></Button>
-    //       </>
-    //     );
-    //   },
-    // },
   ];
   return (
     <div className="mx-20 h-full mt-12">

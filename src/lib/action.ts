@@ -113,6 +113,26 @@ export const updateTxs = async (address: string, block_number: number) => {
   }
 };
 
+export const getReportersData = async () => {
+  const client = await clientPromise;
+  const db = client.db("tellor-feed");
+  const saved_data = await db.collection("reporters").find().toArray();
+  let res = {};
+  for (let i = 0; i < saved_data.length; i++) {
+    res = {
+      ...res,
+      [saved_data[i].address]: {
+        isContract: saved_data[i].isContract,
+        isWorking: saved_data[i].isWorking,
+        lastUpdate: saved_data[i].lastUpdate,
+        recents: saved_data[i].recents,
+        label: saved_data[i].label,
+      },
+    };
+  }
+  return res;
+};
+
 export const updateReporters = async (reporters: any[]) => {
   const client = await clientPromise;
   const db = client.db("tellor-feed");
@@ -131,19 +151,5 @@ export const updateReporters = async (reporters: any[]) => {
       });
     }
   }
-  const saved_data = await db.collection("reporters").find().toArray();
-  let res = {};
-  for (let i = 0; i < saved_data.length; i++) {
-    res = {
-      ...res,
-      [saved_data[i].address]: {
-        isContract: saved_data[i].isContract,
-        isWorking: saved_data[i].isWorking,
-        lastUpdate: saved_data[i].lastUpdate,
-        recents: saved_data[i].recents,
-        label: saved_data[i].label,
-      },
-    };
-  }
-  return res;
+  return await getReportersData();
 };
