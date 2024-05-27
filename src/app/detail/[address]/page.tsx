@@ -203,16 +203,17 @@ export default function Home({ params }: { params: { address: string } }) {
       render: (time, _v, _index) =>
         moment(time).format("HH:mm MM/DD") +
         "(" +
-        moment(time).diff(
-          moment(
-            hideFailed
-              ? txs.filter((tx: any) => Number(tx.receipt_status) === 1)[
-                  _index + 1
-                ]?.block_timestamp
-              : txs[_index + 1]?.block_timestamp
-          )
-        ) /
-          60000 +
+        (
+          moment(time).diff(
+            moment(
+              hideFailed
+                ? txs.filter((tx: any) => Number(tx.receipt_status) === 1)[
+                    _index + 1
+                  ]?.block_timestamp
+                : txs[_index + 1]?.block_timestamp
+            )
+          ) / 60000
+        ).toFixed(1) +
         ")",
     },
     {
