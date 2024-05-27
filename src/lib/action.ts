@@ -125,12 +125,14 @@ export const updateReporters = async (reporters: any[]) => {
         .collection("reporters")
         .findOne({ address: res.reporter.toLowerCase() });
       if (data) {
-        await db
-          .collection("reporters")
-          .updateOne(
-            { address: res.reporter.toLowerCase() },
-            { $set: { recents: [res.earning, ...data.recents] } }
-          );
+        await db.collection("reporters").updateOne(
+          { address: res.reporter.toLowerCase() },
+          {
+            $set: {
+              recents: [res.earning, ...data.recents].slice(0, 10),
+            },
+          }
+        );
       }
     });
     status.capture = true;
