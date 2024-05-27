@@ -11,7 +11,6 @@ import {
   getLastestSubmissionTimestamp,
   getCode,
 } from "@/utils/etherjs";
-import { id } from "ethers/lib/utils";
 
 const status = { started: false };
 

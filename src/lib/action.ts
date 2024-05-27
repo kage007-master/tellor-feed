@@ -3,12 +3,8 @@
 import clientPromise from "@/lib/mongodb";
 import Moralis from "moralis";
 import Config from "@/config/settings";
-const https = require("https");
-const agent = new https.Agent({
-  rejectUnauthorized: false,
-});
 
-const status = { started: false, capture: false, prevTimeStamp: 0 };
+const status = { started: false };
 
 export default async (address: string) => {
   const client = await clientPromise;
@@ -118,30 +114,6 @@ export const updateTxs = async (address: string, block_number: number) => {
 };
 
 export const updateReporters = async (reporters: any[]) => {
-  if (!status.capture) {
-    const socket = require("socket.io-client")("https://95.217.47.46:3000", {
-      agent: agent,
-      transports: ["websocket"],
-    });
-    socket.on("NewReport", async (res: any) => {
-      const client = await clientPromise;
-      const db = client.db("tellor-feed");
-      const data = await db
-        .collection("reporters")
-        .findOne({ address: res.reporter.toLowerCase() });
-      if (data) {
-        await db.collection("reporters").updateOne(
-          { address: res.reporter.toLowerCase() },
-          {
-            $set: {
-              recents: [res.earning, ...data.recents].slice(0, 10),
-            },
-          }
-        );
-      }
-    });
-    status.capture = true;
-  }
   const client = await clientPromise;
   const db = client.db("tellor-feed");
   for (let i = 0; i < reporters.length; i++) {
