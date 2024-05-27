@@ -6,6 +6,7 @@ export default {
   CONTRACT_ADDRESS: "0x8cfc184c877154a8f9ffe0fe75649dbe5e2dbebf",
   MY_ADDRESS1: "0x97ec9221728811c2e61f99eae88841e64e2f4f41",
   MY_ADDRESS2: "0x848eb18bfef7d91587020cf6c4d149cab525bc2e",
+  MY_ADDRESS3: "0x4738ecdea2089151c3b93835867801b1f9594df1",
   // RPC_URL:
   //   "https://mainnet.chainnodes.org/e48ca752-0b57-41d0-b9c3-36853df4c3dd",
   RPC_URL:
