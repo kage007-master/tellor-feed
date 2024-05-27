@@ -3,8 +3,10 @@
 import clientPromise from "@/lib/mongodb";
 import Moralis from "moralis";
 import Config from "@/config/settings";
-import { TellorFlex } from "@/utils/etherjs";
-import { socket } from "./socket";
+const https = require("https");
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+});
 
 const status = { started: false, capture: false, prevTimeStamp: 0 };
 
@@ -117,7 +119,10 @@ export const updateTxs = async (address: string, block_number: number) => {
 
 export const updateReporters = async (reporters: any[]) => {
   if (!status.capture) {
-    const socket = require("socket.io-client")("https://95.217.47.46:3000");
+    const socket = require("socket.io-client")("https://95.217.47.46:3000", {
+      agent: agent,
+      transports: ["websocket"],
+    });
     socket.on("NewReport", async (res: any) => {
       const client = await clientPromise;
       const db = client.db("tellor-feed");
