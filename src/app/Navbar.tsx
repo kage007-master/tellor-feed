@@ -39,7 +39,7 @@ export default function Navbar() {
   }, []);
   return (
     <nav className="!z-50 flex gap-4 px-5 py-2 fixed bg-[#aaa] w-full">
-      <div>Gas: {gasPrice.toFixed(1)} Gwei</div>
+      <div>Gas: {(gasPrice / 1e9).toFixed(1)} Gwei</div>
       <div className="flex items-center gap-1">
         <Image src="/ETH.png" width={20} height={20} alt="eth" />
         ETH: ${ethPrice}
@@ -53,7 +53,7 @@ export default function Navbar() {
         Profit: $
         {(
           avaliableEarning * tellorPrice -
-          ((gasPrice * 272954) / 1e9) * ethPrice
+          ((gasPrice * 272954) / 1e18) * ethPrice
         ).toFixed(2)}
       </div>
       <div className="ml-auto flex gap-2 items-center">
