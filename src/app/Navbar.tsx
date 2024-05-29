@@ -3,7 +3,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/store";
 import { useEffect } from "react";
-import { getPrices, setPrices } from "@/lib/home/homeSlice";
+import {
+  getLastTimestamp,
+  setLastTimestamp,
+  setPrices,
+} from "@/lib/home/homeSlice";
 import Config from "@/config/settings";
 import Link from "next/link";
 import Image from "next/image";
@@ -21,16 +25,16 @@ export default function Navbar() {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    dispatch(getPrices());
-    const id = setInterval(() => {
-      dispatch(getPrices());
-    }, 12000);
+    dispatch(getLastTimestamp());
     socket.on("TokenPrices", (res: any) => {
       dispatch(setPrices(res.data));
     });
+    socket.on("NewReport", (res: any) => {
+      dispatch(setLastTimestamp(res.lastTimestamp));
+    });
     return () => {
       socket.off("TokenPrices");
-      clearInterval(id);
+      socket.off("NewReport");
     };
   }, []);
   return (

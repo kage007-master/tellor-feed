@@ -29,7 +29,7 @@ const initialState: CounterState = {
   reportersData: {},
 };
 
-export const getPrices = createAsyncThunk(`getPrices`, async () => {
+export const getLastTimestamp = createAsyncThunk(`getPrices`, async () => {
   try {
     return {
       lastTimeStamp: await getLastestSubmissionTimestamp(),
@@ -158,6 +158,9 @@ export const counterSlice = createSlice({
     setReportersData: (state, { payload }) => {
       state.reportersData = payload;
     },
+    setLastTimestamp: (state, { payload }) => {
+      state.lastTimeStamp = payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getRecentEarnings.pending, (state) => {});
@@ -165,13 +168,13 @@ export const counterSlice = createSlice({
       if (payload) state.recentEarnings = payload;
     });
     builder.addCase(getRecentEarnings.rejected, (state) => {});
-    builder.addCase(getPrices.pending, (state) => {});
-    builder.addCase(getPrices.fulfilled, (state, { payload }) => {
+    builder.addCase(getLastTimestamp.pending, (state) => {});
+    builder.addCase(getLastTimestamp.fulfilled, (state, { payload }) => {
       if (payload) {
         state.lastTimeStamp = payload.lastTimeStamp;
       }
     });
-    builder.addCase(getPrices.rejected, (state) => {});
+    builder.addCase(getLastTimestamp.rejected, (state) => {});
     builder.addCase(getReporters.pending, (state) => {});
     builder.addCase(getReporters.fulfilled, (state, { payload }) => {
       if (payload) state.reporters = payload;
@@ -182,5 +185,9 @@ export const counterSlice = createSlice({
 
 export default counterSlice.reducer;
 
-export const { getLastEarnings, setPrices, setReportersData } =
-  counterSlice.actions;
+export const {
+  getLastEarnings,
+  setPrices,
+  setReportersData,
+  setLastTimestamp,
+} = counterSlice.actions;
