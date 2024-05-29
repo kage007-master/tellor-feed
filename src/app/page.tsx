@@ -75,7 +75,12 @@ export default function Home() {
             dispatch(
               getLastEarnings({ res, earning, _reporter, _time, reporters })
             );
-            setReportersData(await getReportersData());
+            let temp = reportersData;
+            temp[_reporter.toLocaleLowerCase()].recents = [
+              earning,
+              ...temp[_reporter.toLocaleLowerCase()].recents,
+            ].slice(0, 10);
+            setReportersData(temp);
           }
         );
       }
