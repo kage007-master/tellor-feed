@@ -11,9 +11,9 @@ export default {
   //   "https://mainnet.chainnodes.org/e48ca752-0b57-41d0-b9c3-36853df4c3dd",
   RPC_URL:
     "https://eth-mainnet.g.alchemy.com/v2/98qEi-oHY4IF8-_QykR99CasA9z0Nywr",
-  // SUBGRAPH_URL: "https://api.studio.thegraph.com/query/73546/telliot/v0.0.2",
-  SUBGRAPH_URL:
-    "https://api.thegraph.com/subgraphs/name/everest-dev0323/telliot",
+  SUBGRAPH_URL: "https://api.studio.thegraph.com/query/73546/telliot/v0.0.4",
+  // SUBGRAPH_URL:
+  //   "https://api.thegraph.com/subgraphs/name/everest-dev0323/telliot",
   MONGODB_URL:
     "mongodb+srv://hayatedustin:VZkwJ7cJmikaFuYJ@cluster0.wbzszq0.mongodb.net/",
 };
