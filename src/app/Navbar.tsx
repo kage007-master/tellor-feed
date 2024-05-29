@@ -53,7 +53,7 @@ export default function Navbar() {
         Profit: $
         {(
           avaliableEarning * tellorPrice -
-          ((gasPrice * 272954) / 1e18) * ethPrice
+          ((gasPrice * 272954) / 1e9) * ethPrice
         ).toFixed(2)}
       </div>
       <div className="ml-auto flex gap-2 items-center">
