@@ -5,12 +5,7 @@ import axios from "axios";
 import Moralis from "moralis";
 import Config from "@/config/settings";
 import { getGasUsage } from "@/utils/moralis";
-import {
-  getGasPrice,
-  getCurrentTimeStamp,
-  getLastestSubmissionTimestamp,
-  getCode,
-} from "@/utils/etherjs";
+import { getLastestSubmissionTimestamp, getCode } from "@/utils/etherjs";
 
 const status = { started: false };
 
@@ -19,10 +14,9 @@ export interface CounterState {
   gasPrice: number;
   tellorPrice: number;
   ethPrice: number;
-  avaliableEarning: number;
   reporters: any[];
-  currentTimeStamp: number;
   lastTimeStamp: number;
+  reportersData: any;
 }
 
 const initialState: CounterState = {
@@ -30,17 +24,14 @@ const initialState: CounterState = {
   gasPrice: 0,
   tellorPrice: 105,
   ethPrice: 4000,
-  avaliableEarning: 0,
   reporters: [],
-  currentTimeStamp: 0,
   lastTimeStamp: 0,
+  reportersData: {},
 };
 
 export const getPrices = createAsyncThunk(`getPrices`, async () => {
   try {
     return {
-      gasPrice: await getGasPrice(),
-      currentTimeStamp: await getCurrentTimeStamp(),
       lastTimeStamp: await getLastestSubmissionTimestamp(),
     };
   } catch (e) {
@@ -146,10 +137,26 @@ export const counterSlice = createSlice({
           payload._reporter.toLocaleLowerCase()
       );
       if (idx != -1) state.reporters[idx].lastTimestamp = Number(payload._time);
+
+      let address = payload._reporter.toLocaleLowerCase();
+      state.reportersData = {
+        ...state.reportersData,
+        [address]: {
+          ...state.reportersData[address],
+          recents: [
+            payload.earning,
+            ...state.reportersData[address].recents,
+          ].slice(0, 10),
+        },
+      };
     },
     setPrices: (state, { payload }) => {
       state.ethPrice = payload.ethusdt;
       state.tellorPrice = payload.trbusdt;
+      state.gasPrice = payload.gasPrice;
+    },
+    setReportersData: (state, { payload }) => {
+      state.reportersData = payload;
     },
   },
   extraReducers: (builder) => {
@@ -161,11 +168,7 @@ export const counterSlice = createSlice({
     builder.addCase(getPrices.pending, (state) => {});
     builder.addCase(getPrices.fulfilled, (state, { payload }) => {
       if (payload) {
-        state.gasPrice = payload.gasPrice;
-        state.currentTimeStamp = payload.currentTimeStamp;
         state.lastTimeStamp = payload.lastTimeStamp;
-        state.avaliableEarning =
-          (payload.currentTimeStamp - payload.lastTimeStamp) / 600;
       }
     });
     builder.addCase(getPrices.rejected, (state) => {});
@@ -179,4 +182,5 @@ export const counterSlice = createSlice({
 
 export default counterSlice.reducer;
 
-export const { getLastEarnings, setPrices } = counterSlice.actions;
+export const { getLastEarnings, setPrices, setReportersData } =
+  counterSlice.actions;

@@ -14,20 +14,6 @@ export const getLastestSubmissionTimestamp = async () => {
   return Number(await TellorFlex.getTimeOfLastNewValue());
 };
 
-export const getCurrentTimeStamp = async () => {
-  return Number((await provider.getBlock("latest"))?.timestamp);
-};
-
-export const getGasPrice = async () => {
-  return Number((await provider.getFeeData()).gasPrice);
-};
-
-export const getAvailableEarning = async () => {
-  const current = await getCurrentTimeStamp();
-  const last = await getLastestSubmissionTimestamp();
-  return (current - last) / 600;
-};
-
 export const getBlockNumber = async () => {
   return await provider.getBlockNumber();
 };

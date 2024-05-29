@@ -13,9 +13,11 @@ import { CopyOutlined } from "@ant-design/icons";
 import { socket } from "@/lib/socket";
 
 export default function Navbar() {
-  const { gasPrice, ethPrice, tellorPrice, avaliableEarning } = useSelector(
+  const { gasPrice, ethPrice, tellorPrice, lastTimeStamp } = useSelector(
     (state: RootState) => state.home
   );
+  const avaliableEarning =
+    (Math.floor(Number(new Date()) / 1000) - lastTimeStamp) / 600;
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function Navbar() {
   }, []);
   return (
     <nav className="!z-50 flex gap-4 px-5 py-2 fixed bg-[#aaa] w-full">
-      <div>Gas: {(gasPrice / 1e9).toFixed(0)} Gwei</div>
+      <div>Gas: {gasPrice.toFixed(1)} Gwei</div>
       <div className="flex items-center gap-1">
         <Image src="/ETH.png" width={20} height={20} alt="eth" />
         ETH: ${ethPrice}
@@ -42,7 +44,7 @@ export default function Navbar() {
         <Image src="/TRB.png" width={20} height={20} alt="trb" />
         TRB: ${tellorPrice}
       </div>
-      <div>Reward: {avaliableEarning}</div>
+      <div>Reward: {avaliableEarning.toFixed(3)}</div>
       <div>
         Profit: $
         {(

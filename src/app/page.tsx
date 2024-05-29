@@ -7,6 +7,7 @@ import {
   getLastEarnings,
   getRecentEarnings,
   getReporters,
+  setReportersData,
 } from "@/lib/home/homeSlice";
 import { useEffect, useState } from "react";
 import { shortenName, secondsToHMS } from "@/utils/string";
@@ -25,7 +26,7 @@ import { getDuration } from "@/utils/math";
 import Config from "@/config/settings";
 import Link from "next/link";
 import { TellorFlex } from "@/utils/etherjs";
-import { getReportersData, updateReporters } from "@/lib/action";
+import { updateReporters } from "@/lib/action";
 
 interface DataType {
   key: React.Key;
@@ -40,10 +41,10 @@ interface DataType {
 
 let prevTimeStamp = 0;
 export default function Home() {
-  const { ethPrice, tellorPrice, currentTimeStamp, reporters, lastTimeStamp } =
+  const { ethPrice, tellorPrice, reporters, lastTimeStamp, reportersData } =
     useSelector((state: RootState) => state.home);
+  const currentTimeStamp = Math.floor(Number(new Date()) / 1000);
   const [hideNotWorking, setHideNotWorking] = useState(false);
-  const [reportersData, setReportersData] = useState<any>({});
   const recentEarnings = useSelector(
     (state: RootState) => state.home.recentEarnings
   );
@@ -75,12 +76,6 @@ export default function Home() {
             dispatch(
               getLastEarnings({ res, earning, _reporter, _time, reporters })
             );
-            let temp = reportersData;
-            temp[_reporter.toLocaleLowerCase()].recents = [
-              earning,
-              ...temp[_reporter.toLocaleLowerCase()].recents,
-            ].slice(0, 10);
-            setReportersData(temp);
           }
         );
       }
@@ -89,7 +84,7 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
-      setReportersData(await updateReporters(reporters));
+      dispatch(setReportersData(await updateReporters(reporters)));
     })();
   }, [reporters.length]);
 
@@ -153,15 +148,15 @@ export default function Home() {
               )
             }
             onClick={() => {
-              setReportersData({
-                ...reportersData,
-                [address]: {
-                  isContract: reportersData[address].isContract,
-                  isWorking: !reportersData[address].isWorking,
-                  lastUpdate: reportersData[address].lastUpdate,
-                  recents: reportersData[address].recents,
-                },
-              });
+              dispatch(
+                setReportersData({
+                  ...reportersData,
+                  [address]: {
+                    ...reportersData[address],
+                    isWorking: !reportersData[address].isWorking,
+                  },
+                })
+              );
             }}
           />
         </div>
@@ -170,7 +165,7 @@ export default function Home() {
     {
       title: "Recents",
       dataIndex: "id",
-      render: (address) => reportersData[address]?.recents.join(", "),
+      render: (address) => reportersData[address]?.recents.join(",  "),
     },
     {
       title: "Amount",
